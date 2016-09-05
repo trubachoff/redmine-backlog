@@ -13,7 +13,10 @@ Redmine::Plugin.register :backlog do
 
   menu :top_menu, :backlog, { :controller => 'backlogs', :action => 'index' }, :caption => :label_backlog
 
+  settings :default => {'empty' => true}, :partial => 'backlog_settings'
+
   project_module :backlog do
     permission :view_backlog, :backlogs => :index
   end
+
 end

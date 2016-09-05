@@ -1,28 +1,28 @@
 <p class="query-totals">
-  <span class="total-for-estimated-hours">
-    <span class="total-for-spent-hours"><span><%=l(:field_estimated_hours)%>:</span> <span class="value">0.00</span></span>
-    <span class="total-for-spent-hours"><span><%=l(:label_spent_time)%>:</span> <span class="value">0.00</span></span>
-  </span>
+  <span class="total-for-estimated-hours"><span><%=l(:field_estimated_hours)%>:</span> <span class="value <%= 'red' if (@sprint_hours - @estimated_hours) < 0 %>"%><%= "#{@estimated_hours} (#{@sprint_hours - @estimated_hours})" %></span></span>
+  <span class="total-for-spent-hours"><span><%=l(:label_spent_time)%>:</span> <span class="value"><%= @spent_hours %></span></span>
 </p>
 <% if @backlogs && @backlogs.any? %>
 <%= form_tag({}) do %>
-  <style type="text/css">
-    tr:nth-child(odd) {background-color: #f6f7f8;}
-  </style>
+
   <table class="list table" id="sortable">
     <thead><tr>
-    <th></th>
+    <th class="checkbox hide-when-print">
+      <%= check_box_tag 'check_all', '', false, :class => 'toggle-selection',
+            :title => "#{l(:button_check_all)}/#{l(:button_uncheck_all)}" %>
+    </th>
     <th>#</th>
     <th><%=l(:field_project)%></th>
     <th><%=l(:field_tracker)%></th>
     <th><%=l(:field_status)%></th>
     <th><%=l(:field_priority)%></th>
     <th><%=l(:field_subject)%></th>
+    <th><%=l(:field_estimated_hours)%></th>
     <th><%=l(:field_assigned_to)%></th>
     </tr></thead>
     <tbody>
     <% for backlog in @backlogs %>
-    <tr id="issue-<%= backlog.issue.id %>" class="item hascontextmenu" data-item-id=<%= "#{backlog.id}" %>>
+    <tr id="issue-<%= backlog.issue.id %>" class="item hascontextmenu" data-item-id="<%= backlog.id %>">
       <td class="checkbox hide-when-print"><%= check_box_tag("ids[]", backlog.issue.id, false, :id => nil) %></td>
       <td><%= backlog.issue.id %></td>
       <td class="project"><%= link_to_project(backlog.issue.project) %></td>
@@ -32,6 +32,7 @@
       <td class="subject">
         <%= link_to(backlog.issue.subject.truncate(60), issue_path(backlog.issue)) %>
       </td>
+      <td><%= backlog.issue.estimated_hours %></td>
       <td><%= backlog.issue.assigned_to %></td>
     </tr>
     <% end %>

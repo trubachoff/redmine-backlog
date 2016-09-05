@@ -4,6 +4,7 @@ class Backlog < ActiveRecord::Base
   belongs_to :issue
   has_one :agile_data, through: :issue
   has_many :status, through: :issue
+  has_many :time_entries, through: :issue
 
   include RankedModel
   ranks :row_order
@@ -22,6 +23,20 @@ class Backlog < ActiveRecord::Base
       row_max = 0 unless row_max
       Backlog.create issue_id: issue_id, row_order: row_max + 1
     end
+  end
+
+  def self.sort_agile
+    Backlog.all.order(:row_order) do |backlog|
+
+    end
+  end
+
+  def self.estimated_hours
+    Backlog.joins(:issue).sum(:estimated_hours).to_f || 0.0
+  end
+
+  def self.spent_hours
+    Backlog.joins(:time_entries).sum(:hours).to_f || 0.0
   end
 
 end

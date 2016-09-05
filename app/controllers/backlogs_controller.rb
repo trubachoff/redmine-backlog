@@ -15,14 +15,18 @@ class BacklogsController < ApplicationController
   helper :issues
   helper :context_menus
 
-
   rescue_from Query::StatementInvalid, :with => :query_statement_invalid
 
   def index
 
+    @estimated_hours = Backlog::estimated_hours
+    @sprint_hours = Setting['plugin_backlog']['sprint_hours'].to_f || 0.0
+    @implementer_hours = Setting['plugin_backlog']['implementer_hours'].to_f || 0.0
+    @spent_hours = Backlog::spent_hours
+
+    flash[:warning] = l(:notice_backlog_estimated_time_exceeded) if (@sprint_hours - @estimated_hours) < 0
+
     Backlog::fill_backlog
-    # @issues = Issue.joins(:status, :agile_data).where( created_on: (Time.now.midnight - 2.weeks)..Time.now ).order('issue_statuses.id', 'agile_data.position')
-    # @issues = Issue.joins(:status, :agile_data).order('issue_statuses.id', 'agile_data.position').all
     @backlogs = Backlog.rank(:row_order).all
 
     retrieve_query
@@ -46,7 +50,7 @@ class BacklogsController < ApplicationController
 
   def update_row_order
     @backlog = Backlog.find(backlog_params[:backlog_id])
-    @backlog.row_order = backlog_params[:row_order]
+    @backlog.update_attribute :row_order_position, backlog_params[:row_order]
     @backlog.save
 
     render nothing: true # this is a POST action, updates sent via AJAX, no view rendered

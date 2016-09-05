@@ -1,5 +1,6 @@
 <% content_for :header_tags do %>
   <%= javascript_include_tag 'backlog', :plugin => 'backlog' %>
+  <%= stylesheet_link_tag 'backlog.css', :plugin => 'backlog', :media => 'screen' %>
 <% end %>
 
 <h2><%= l(:label_backlog) %></h2>
@@ -25,7 +26,7 @@
 <%= form_tag({ :controller => 'backlogs', :action => 'index', :project_id => @project },
             :method => :get, :id => 'query_form') do %>
   <div id="query_form_with_buttons" class="hide-when-print">
-    <% #= hidden_field_tag 'set_filter', '1' %>
+    <%= hidden_field_tag 'set_filter', '1' %>
     <div id="query_form_content">
     <fieldset id="filters" class="collapsible collapsed">
       <legend onclick="toggleFieldset(this);"><%= l(:label_filter_plural) %></legend>

@@ -1,3 +1,6 @@
 # English strings go here for Rails i18n
 en:
   # my_label: "My label"
+  label_implementer_hours: Implementer time
+  label_sprint_estimated_hours: Sprint estimated time
+  notice_backlog_estimated_time_exceeded: The expected time is exceeded

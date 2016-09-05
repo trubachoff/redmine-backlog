@@ -1,0 +1,9 @@
+<p>
+  <label><%= l(:label_sprint_estimated_hours) %></label>
+  <%= text_field_tag 'settings[sprint_hours]', settings['sprint_hours'], :size => 3 %> <%= l(:field_hours) %>
+</p>
+
+<p>
+  <label><%= l(:label_implementer_hours) %></label>
+  <%= text_field_tag 'settings[implementer_hours]', settings['implementer_hours'], :size => 3 %> <%= l(:field_hours) %>
+</p>

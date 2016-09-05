@@ -4,6 +4,6 @@
 
 resources :backlogs do
   get :backlogs, :to => 'backlogs#index'
-  post :update_row_order, on: :collection
+  put :update_row_order, on: :collection
 end
 

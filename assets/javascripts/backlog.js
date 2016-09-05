@@ -15,10 +15,10 @@ jQuery(function() {
       update: function(e, ui) {
         var item_id, position;
         item_id = ui.item.data('item-id');
-        console.log(item_id);
         position = ui.item.index();
+        console.log(item_id, position);
         return $.ajax({
-          type: 'POST',
+          type: 'PUT',
           url: '/backlogs/update_row_order',
           dataType: 'json',
           data: {
