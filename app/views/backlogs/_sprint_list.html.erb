@@ -6,26 +6,33 @@
 </p>
 <% if @backlogs && @backlogs.any? %>
 <%= form_tag({}) do %>
+  <style type="text/css">
+    tr:nth-child(odd) {background-color: #f6f7f8;}
+  </style>
   <table class="list table" id="sortable">
     <thead><tr>
+    <th></th>
     <th>#</th>
     <th><%=l(:field_project)%></th>
     <th><%=l(:field_tracker)%></th>
     <th><%=l(:field_status)%></th>
+    <th><%=l(:field_priority)%></th>
     <th><%=l(:field_subject)%></th>
+    <th><%=l(:field_assigned_to)%></th>
     </tr></thead>
     <tbody>
     <% for backlog in @backlogs %>
-    <tr data-item-id=<%= "#{backlog.id}" %> class="item">
-      <td>
-        <%= backlog.issue.id %>
-      </td>
+    <tr id="issue-<%= backlog.issue.id %>" class="item hascontextmenu" data-item-id=<%= "#{backlog.id}" %>>
+      <td class="checkbox hide-when-print"><%= check_box_tag("ids[]", backlog.issue.id, false, :id => nil) %></td>
+      <td><%= backlog.issue.id %></td>
       <td class="project"><%= link_to_project(backlog.issue.project) %></td>
       <td class="tracker"><%= backlog.issue.tracker %></td>
       <td><%= backlog.issue.status %></td>
+      <td><%= backlog.issue.priority %></td>
       <td class="subject">
         <%= link_to(backlog.issue.subject.truncate(60), issue_path(backlog.issue)) %>
       </td>
+      <td><%= backlog.issue.assigned_to %></td>
     </tr>
     <% end %>
     </tbody>

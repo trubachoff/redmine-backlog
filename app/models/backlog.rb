@@ -8,4 +8,20 @@ class Backlog < ActiveRecord::Base
   include RankedModel
   ranks :row_order
 
+  def self.fill_backlog
+    cf_id = CustomField.find_by_name('In Sprint').id
+    issue_id_arr = (Issue.all.map { |i| i.id if i.custom_field_value(cf_id) == '1' }).compact
+    backlog_issue_id_arr = Backlog.pluck :issue_id
+
+    (backlog_issue_id_arr - issue_id_arr).each do |issue_id|
+      Backlog.find_by(issue_id: issue_id).delete
+    end
+
+    (issue_id_arr - backlog_issue_id_arr).each do |issue_id|
+      row_max = Backlog.maximum(:row_order)
+      row_max = 0 unless row_max
+      Backlog.create issue_id: issue_id, row_order: row_max + 1
+    end
+  end
+
 end

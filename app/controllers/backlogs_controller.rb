@@ -4,21 +4,23 @@ class BacklogsController < ApplicationController
 
   before_filter :find_issue, :only => [:show, :edit, :update]
   before_filter :find_issues, :only => [:bulk_edit, :bulk_update, :destroy]
-  before_filter :authorize, :except => [:index, :new, :create]
+  # before_filter :authorize, :except => [:index, :new, :create]
   before_filter :find_optional_project, :only => [:index, :new, :create]
   before_filter :build_new_issue_from_params, :only => [:new, :create]
-  accept_rss_auth :index, :show
-  accept_api_auth :index, :show, :create, :update, :destroy
 
   helper :queries
   include QueriesHelper
   helper :sort
   include SortHelper
   helper :issues
+  helper :context_menus
+
 
   rescue_from Query::StatementInvalid, :with => :query_statement_invalid
 
   def index
+
+    Backlog::fill_backlog
     # @issues = Issue.joins(:status, :agile_data).where( created_on: (Time.now.midnight - 2.weeks)..Time.now ).order('issue_statuses.id', 'agile_data.position')
     # @issues = Issue.joins(:status, :agile_data).order('issue_statuses.id', 'agile_data.position').all
     @backlogs = Backlog.rank(:row_order).all
