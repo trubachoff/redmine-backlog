@@ -1,5 +1,6 @@
 class BacklogsController < ApplicationController
   unloadable
+
   default_search_scope :issues
 
   before_filter :find_optional_project, :only => [:index]
@@ -14,9 +15,6 @@ class BacklogsController < ApplicationController
   rescue_from Query::StatementInvalid, :with => :query_statement_invalid
 
   def index
-    sprint_hours
-    flash.now[:warning] = l(:notice_backlog_estimated_time_exceeded) if (@sprint_hours - @estimated_hours) < 0
-
     Backlog::fill_backlog
     @backlogs = Backlog.rank(:row_order).all
 
@@ -36,6 +34,8 @@ class BacklogsController < ApplicationController
                               :limit => @limit)
       @issue_count_by_group = @query.issue_count_by_group
     end
+
+    sprint_hours
 
   end
 
@@ -60,6 +60,7 @@ class BacklogsController < ApplicationController
 
     @sprint_hours = Setting['plugin_backlog']['sprint_hours'].to_f || 0.0
     @implementer_hours = Setting['plugin_backlog']['implementer_hours'].to_f || 0.0
+    flash[:warning] = l(:notice_backlog_estimated_time_exceeded) if (@sprint_hours - @estimated_hours) < 0
   end
 
   private
