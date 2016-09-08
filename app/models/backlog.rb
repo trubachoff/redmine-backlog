@@ -43,6 +43,7 @@ class Backlog < ActiveRecord::Base
       else
         statuses_counter[issue.status.id] += 1
       end
+      issue.agile_data.position = 0 if issue.agile_data.position.nil?
       issue.agile_data.position = statuses_counter[issue.status.id] if statuses_counter[issue.status.id] > issue.agile_data.position
       issue.agile_data.save
     end
@@ -66,7 +67,14 @@ class Backlog < ActiveRecord::Base
       to_position = positions_arr.index(issue.id)
       to_issue = Issue.where(status_id: issue.status_id).joins(:agile_data).find_by(agile_data: {position: to_position})
       to_issue_id = to_issue.present? ? to_issue.id : issue.id
-      row_order_position = Backlog.order(:row_order).pluck(:issue_id).index(to_issue_id) || 0
+
+      issue_id_arr = Backlog.order(:row_order).pluck(:issue_id)
+
+      if (positions_arr - issue_id_arr).length > 0
+        row_order_position = 0
+      else
+        row_order_position = issue_id_arr.index(to_issue_id)
+      end
 
       return true if Backlog.find_by(issue_id: issue.id).update_attribute :row_order_position, row_order_position
 

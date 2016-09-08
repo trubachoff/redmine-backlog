@@ -2,12 +2,9 @@ class BacklogsController < ApplicationController
   unloadable
   default_search_scope :issues
 
-  # before_filter :find_issue, :only => [:show, :edit, :update]
-  # before_filter :find_issues, :only => [:bulk_edit, :bulk_update, :destroy]
-  # before_filter :authorize, :except => [:index, :new, :create]
-  # before_filter :find_optional_project, :only => [:index, :new, :create]
-  # before_filter :build_new_issue_from_params, :only => [:new, :create]
   before_filter :find_optional_project, :only => [:index]
+  # after_filter { flash.discard if request.xhr? }, only: :update_hours
+  # after_filter -> { flash.discard }, if: -> { request.xhr? }
 
   helper :queries
   include QueriesHelper
@@ -20,7 +17,7 @@ class BacklogsController < ApplicationController
 
   def index
     sprint_hours
-    flash[:warning] = l(:notice_backlog_estimated_time_exceeded) if (@sprint_hours - @estimated_hours) < 0
+    flash.now[:warning] = l(:notice_backlog_estimated_time_exceeded) if (@sprint_hours - @estimated_hours) < 0
 
     Backlog::fill_backlog
     @backlogs = Backlog.rank(:row_order).all
@@ -53,10 +50,11 @@ class BacklogsController < ApplicationController
   end
 
   def sprint_hours
-    @estimated_hours = Backlog::estimated_hours || 0.0
+    @estimated_hours = Backlog::estimated_hours
+    @spent_hours = Backlog::spent_hours
+
     @sprint_hours = Setting['plugin_backlog']['sprint_hours'].to_f || 0.0
     @implementer_hours = Setting['plugin_backlog']['implementer_hours'].to_f || 0.0
-    @spent_hours = Backlog::spent_hours || 0.0
   end
 
   private
