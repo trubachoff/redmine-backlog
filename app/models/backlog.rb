@@ -49,14 +49,6 @@ class Backlog < ActiveRecord::Base
     end
   end
 
-  def self.estimated_hours
-    Backlog.joins(:issue).sum(:estimated_hours).to_f || 0.0
-  end
-
-  def self.spent_hours
-    Backlog.joins(:time_entries).sum(:hours).to_f || 0.0
-  end
-
   def self.update_position_by_agile_board(context)
     issue = context[:issue]
     if Backlog.find_by(issue_id: issue.id).present?
@@ -77,8 +69,15 @@ class Backlog < ActiveRecord::Base
       end
 
       return true if Backlog.find_by(issue_id: issue.id).update_attribute :row_order_position, row_order_position
-
     end
+  end
+
+  def self.estimated_hours
+    Backlog.joins(:issue).sum(:estimated_hours).to_f || 0.0
+  end
+
+  def self.spent_hours
+    Backlog.joins(:time_entries).sum(:hours).to_f || 0.0
   end
 
 end

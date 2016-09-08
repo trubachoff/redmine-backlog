@@ -3,8 +3,6 @@ class BacklogsController < ApplicationController
   default_search_scope :issues
 
   before_filter :find_optional_project, :only => [:index]
-  # after_filter { flash.discard if request.xhr? }, only: :update_hours
-  # after_filter -> { flash.discard }, if: -> { request.xhr? }
 
   helper :queries
   include QueriesHelper
@@ -44,9 +42,16 @@ class BacklogsController < ApplicationController
   def update_row_order
     @backlog = Backlog.find(backlog_params[:backlog_id])
     @backlog.update_attribute :row_order_position, backlog_params[:row_order]
-    @backlog.save
 
-    render nothing: true # this is a POST action, updates sent via AJAX, no view rendered
+    call_hook :controller_row_order_update_before_save, { :backlog_params => backlog_params, :backlog => @backlog }
+
+    if @backlog.save
+      call_hook :controller_row_order_update_after_save, { :backlog_params => backlog_params, :backlog => @backlog }
+      render nothing: true # this is a POST action, updates sent via AJAX, no view rendered
+    else
+      flash.now[:error] = l :error_cannot_update_row_order
+      redirect_to action: 'index'
+    end
   end
 
   def sprint_hours
@@ -58,14 +63,14 @@ class BacklogsController < ApplicationController
   end
 
   private
-  # Use callbacks to share common setup or constraints between actions.
-  def set_backlog
-    @backlog = backlog.find(params[:id])
-  end
+    # Use callbacks to share common setup or constraints between actions.
+    def set_backlog
+      @backlog = backlog.find(params[:id])
+    end
 
-  # Never trust parameters from the scary internet, only allow the white list through.
-  def backlog_params
-    params.require(:backlog).permit(:backlog_id, :row_order)
-  end
+    # Never trust parameters from the scary internet, only allow the white list through.
+    def backlog_params
+      params.require(:backlog).permit(:backlog_id, :row_order)
+    end
 
 end

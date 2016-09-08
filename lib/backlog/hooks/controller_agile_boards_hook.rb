@@ -3,7 +3,7 @@ module RedmineAgile
   module Hooks
     class ControllerAgileBoardHook < Redmine::Hook::ViewListener
 
-      def controller_agile_boards_index(context={})
+      def controller_row_order_update_after_save(context={})
         Backlog::sort_agile_data_position
       end
 
