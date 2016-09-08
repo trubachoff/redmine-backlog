@@ -9,8 +9,6 @@ class BacklogsController < ApplicationController
   # before_filter :build_new_issue_from_params, :only => [:new, :create]
   before_filter :find_optional_project, :only => [:index]
 
-  # after_filter { flash.discard if request.xhr? }, only: :update_hours
-
   helper :queries
   include QueriesHelper
   helper :sort
@@ -21,11 +19,7 @@ class BacklogsController < ApplicationController
   rescue_from Query::StatementInvalid, :with => :query_statement_invalid
 
   def index
-    @estimated_hours = Backlog::estimated_hours || 0.0
-    @sprint_hours = Setting['plugin_backlog']['sprint_hours'].to_f || 0.0
-    @implementer_hours = Setting['plugin_backlog']['implementer_hours'].to_f || 0.0
-    @spent_hours = Backlog::spent_hours || 0.0
-
+    sprint_hours
     flash[:warning] = l(:notice_backlog_estimated_time_exceeded) if (@sprint_hours - @estimated_hours) < 0
 
     Backlog::fill_backlog
@@ -47,6 +41,7 @@ class BacklogsController < ApplicationController
                               :limit => @limit)
       @issue_count_by_group = @query.issue_count_by_group
     end
+
   end
 
   def update_row_order
@@ -57,15 +52,22 @@ class BacklogsController < ApplicationController
     render nothing: true # this is a POST action, updates sent via AJAX, no view rendered
   end
 
-  private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_backlog
-      @backlog = backlog.find(params[:id])
-    end
+  def sprint_hours
+    @estimated_hours = Backlog::estimated_hours || 0.0
+    @sprint_hours = Setting['plugin_backlog']['sprint_hours'].to_f || 0.0
+    @implementer_hours = Setting['plugin_backlog']['implementer_hours'].to_f || 0.0
+    @spent_hours = Backlog::spent_hours || 0.0
+  end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def backlog_params
-      params.require(:backlog).permit(:backlog_id, :row_order)
-    end
+  private
+  # Use callbacks to share common setup or constraints between actions.
+  def set_backlog
+    @backlog = backlog.find(params[:id])
+  end
+
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def backlog_params
+    params.require(:backlog).permit(:backlog_id, :row_order)
+  end
 
 end
