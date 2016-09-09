@@ -11,7 +11,7 @@
 <% if @backlogs.empty? %>
 <p class="nodata"><%= l(:label_no_data) %></p>
 <% else %>
-<%= render :partial => 'sprint_list', :locals => {:backlogs => @backlogs} %>
+<%= render :partial => 'sprint_list', :locals => {:backlogs => @backlogs, :query => @query} %>
 <% end %>
 
 <div class="contextual">
