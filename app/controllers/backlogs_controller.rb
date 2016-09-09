@@ -58,8 +58,8 @@ class BacklogsController < ApplicationController
     @estimated_hours = Backlog::estimated_hours
     @spent_hours = Backlog::spent_hours
 
-    @sprint_hours = Setting['plugin_backlog']['sprint_hours'].to_f || 0.0
-    @implementer_hours = Setting['plugin_backlog']['implementer_hours'].to_f || 0.0
+    @sprint_hours = Setting['plugin_redmine_backlog']['sprint_hours'].to_f || 0.0
+    @implementer_hours = Setting['plugin_redmine_backlog']['implementer_hours'].to_f || 0.0
     flash[:warning] = l(:notice_backlog_estimated_time_exceeded) if (@sprint_hours - @estimated_hours) < 0
   end
 
