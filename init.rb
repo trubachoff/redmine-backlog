@@ -11,7 +11,8 @@ Redmine::Plugin.register :backlog do
   version '0.0.10'
   author_url 'mailto:trubachoff@gmail.com'
 
-  menu :top_menu, :backlog, { :controller => 'backlogs', :action => 'index' }, :caption => :label_backlog
+  cf_id = 'cf_' + CustomField.find_by(name: 'In Sprint').id.to_s
+  menu :top_menu, :backlog, { :controller => 'backlogs', :action => 'index', :set_filter => 1, :f => [cf_id], :op => {cf_id => '!'}, :v => {cf_id => [1]} }, :caption => :label_backlog
 
   settings :default => {'empty' => true}, :partial => 'backlog_settings'
 
