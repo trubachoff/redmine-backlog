@@ -20,7 +20,7 @@ Redmine::Plugin.register :redmine_backlog do
 
   settings :default => {'empty' => true}, :partial => 'backlog_settings'
 
-  project_module :redmine_backlog do
+  project_module :backlog do
     permission :view_backlog, :backlogs => :index
   end
 

@@ -11,7 +11,7 @@ class Backlog < ActiveRecord::Base
 
   def self.fill_backlog
     cf_id = CustomField.find_by_name('In Sprint').id
-    issue_id_arr = (Issue.all.map { |i| i.id if i.custom_field_value(cf_id) == '1' }).compact || []
+    issue_id_arr = CustomValue.where(custom_field_id: cf_id, value: 1).pluck :customized_id || []
     backlog_issue_id_arr = Backlog.pluck :issue_id || []
     (backlog_issue_id_arr - issue_id_arr).each { |issue_id| Backlog.find_by(issue_id: issue_id).delete }
     (issue_id_arr - backlog_issue_id_arr).each { |issue_id| Backlog.create issue_id: issue_id }

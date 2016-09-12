@@ -3,8 +3,6 @@ class BacklogsController < ApplicationController
 
   default_search_scope :issues
 
-  before_filter :find_optional_project, :only => [:index]
-
   helper :queries
   include QueriesHelper
   helper :sort
@@ -36,7 +34,6 @@ class BacklogsController < ApplicationController
     end
 
     sprint_hours
-
   end
 
   def update_row_order
@@ -47,23 +44,22 @@ class BacklogsController < ApplicationController
 
     if @backlog.save
       call_hook :controller_row_order_update_after_save, { :backlog_params => backlog_params, :backlog => @backlog }
-      render nothing: true # this is a POST action, updates sent via AJAX, no view rendered
-    else
-      flash.now[:error] = l :error_cannot_update_row_order
-      redirect_to action: 'index'
     end
+    render nothing: true # this is a POST action, updates sent via AJAX, no view rendered
   end
 
-  def sprint_hours
-    @estimated_hours = Backlog::estimated_hours
-    @spent_hours = Backlog::spent_hours
-
-    @sprint_hours = Setting['plugin_redmine_backlog']['sprint_hours'].to_f || 0.0
-    @implementer_hours = Setting['plugin_redmine_backlog']['implementer_hours'].to_f || 0.0
-    flash[:warning] = l(:notice_backlog_estimated_time_exceeded) if (@sprint_hours - @estimated_hours) < 0
-  end
 
   private
+    # Calculate In Sprint estimated and sent hours
+    def sprint_hours
+      @estimated_hours = Backlog::estimated_hours
+      @spent_hours = Backlog::spent_hours
+
+      @sprint_hours = Setting['plugin_redmine_backlog']['sprint_hours'].to_f || 0.0
+      @implementer_hours = Setting['plugin_redmine_backlog']['implementer_hours'].to_f || 0.0
+      flash[:warning] = l(:notice_backlog_estimated_time_exceeded) if (@sprint_hours - @estimated_hours) < 0
+    end
+
     # Use callbacks to share common setup or constraints between actions.
     def set_backlog
       @backlog = backlog.find(params[:id])
