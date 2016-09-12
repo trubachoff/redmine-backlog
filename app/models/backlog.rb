@@ -80,4 +80,8 @@ class Backlog < ActiveRecord::Base
     Backlog.joins(:time_entries).sum(:hours).to_f || 0.0
   end
 
+  def self.query_backlog
+    statuses_ids = Setting.plugin_redmine_backlog['backlog_view_statuses'].to_a
+    Backlog.joins(:issue).where('issues.status_id' => statuses_ids).rank(:row_order)
+  end
 end

@@ -7,3 +7,8 @@
   <label><%= l(:label_implementer_hours) %></label>
   <%= text_field_tag 'settings[implementer_hours]', settings['implementer_hours'], :size => 3 %> <%= l(:field_hours) %>
 </p>
+
+<p>
+  <label><%= l(:label_backlog_view_statuses) %></label>
+  <%= select_tag 'settings[backlog_view_statuses]', options_for_select(IssueStatus.all.collect{|c| [c.name, c.id]}, Setting.plugin_redmine_backlog['backlog_view_statuses'].to_a), :multiple => true, :include_blank => true, :size => 10, :style => "width:150px" %>
+</p>

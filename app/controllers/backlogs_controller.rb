@@ -15,7 +15,7 @@ class BacklogsController < ApplicationController
 
   def index
     Backlog::fill_backlog
-    @backlogs = Backlog.rank(:row_order).all
+    @backlogs = Backlog::query_backlog
 
     retrieve_query
     sort_init(@query.sort_criteria.empty? ? [['id', 'desc']] : @query.sort_criteria)
