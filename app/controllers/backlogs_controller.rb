@@ -1,7 +1,8 @@
 class BacklogsController < ApplicationController
+
   unloadable
 
-  default_search_scope :issues
+  before_filter :authorize_global, :only => [:index, :update_row_order]
 
   helper :queries
   include QueriesHelper

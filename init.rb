@@ -13,15 +13,16 @@ Redmine::Plugin.register :redmine_backlog do
   requires_redmine_plugin :redmine_agile, :version_or_higher => '1.4.0'
 
   cf_id = 'cf_' + CustomField.find_by(name: 'In Sprint').id.to_s
-  menu :top_menu, :backlog, { :controller => 'backlogs', :action => 'index', :set_filter => 1, :f => [cf_id], :op => {cf_id => '!'}, :v => {cf_id => [1]} }, :caption => :label_backlog
+  menu :top_menu, :backlog, { :controller => 'backlogs', :action => 'index', :project_id => nil, :set_filter => 1, :f => [cf_id], :op => {cf_id => '!'}, :v => {cf_id => [1]} }, :caption => :label_backlog
 
   delete_menu_item :top_menu, :agile_boards
-  menu :top_menu, :agile_boards, { :controller => 'agile_boards', :action => 'index', :set_filter => 1, :f => [cf_id], :op => {cf_id => '='}, :v => {cf_id => [1]} }, :caption => :label_agile
+  menu :top_menu, :agile_boards, { :controller => 'agile_boards', :action => 'index', :project_id => nil, :set_filter => 1, :f => [cf_id], :op => {cf_id => '='}, :v => {cf_id => [1]} }, :caption => :label_agile, :after => :agile_boards
 
   settings :default => {'empty' => true}, :partial => 'backlog_settings'
 
   project_module :backlog do
     permission :view_backlog, :backlogs => :index
+    permission :update_backlog, :backlogs => :update_row_order
   end
 
 end
