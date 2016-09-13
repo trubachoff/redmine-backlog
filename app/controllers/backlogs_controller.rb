@@ -36,7 +36,8 @@ class BacklogsController < ApplicationController
 
     sprint_hours
 
-    flash.now[:implementer_error] = l(:error_backlog_implementer_time_exceeded) if Backlog::is_implementers_owerflow?
+    flash.now[:implementer_error] = l(:error_backlog_implementer_time_exceeded,
+                                      implementers: Backlog::implementers_owerflow.map {|e| e.issue.assigned_to.name}.uniq.join(', ')) if Backlog::is_implementers_owerflow?
   end
 
   def update_row_order

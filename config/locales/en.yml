@@ -3,4 +3,4 @@ en:
   label_sprint_estimated_hours: Sprint estimated time
   label_backlog_view_statuses: View statuses In Sprint
   error_backlog_estimated_time_exceeded: The expected time is exceeded
-  error_backlog_implementer_time_exceeded: Implementer time is exceeded
+  error_backlog_implementer_time_exceeded: "Implementer time is exceeded: %{implementers}"
