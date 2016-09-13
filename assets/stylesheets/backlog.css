@@ -1,7 +1,19 @@
 .red {
-  color: #bb0000;
+  color: rgb(200,0,0);
 }
+
 
 tr:nth-child(odd) {
   background-color: #f6f7f8;
+}
+
+tr.bg_error {
+  background-color: rgba(200,0,0,0.1);
+}
+
+.implementer_error, .estimated_error {
+    background: url(/images/exclamation.png) 8px 50% no-repeat;
+    background-color: rgba(200,0,0,0.1);
+    border-color: #dd0000;
+    color: #880000;
 }

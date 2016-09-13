@@ -35,6 +35,8 @@ class BacklogsController < ApplicationController
     end
 
     sprint_hours
+
+    flash.now[:implementer_error] = l(:error_backlog_implementer_time_exceeded) if Backlog::is_implementers_owerflow?
   end
 
   def update_row_order
@@ -49,16 +51,13 @@ class BacklogsController < ApplicationController
     render nothing: true # this is a POST action, updates sent via AJAX, no view rendered
   end
 
-
   private
     # Calculate In Sprint estimated and sent hours
     def sprint_hours
       @estimated_hours = Backlog::estimated_hours
       @spent_hours = Backlog::spent_hours
-
-      @sprint_hours = Setting['plugin_redmine_backlog']['sprint_hours'].to_f || 0.0
-      @implementer_hours = Setting['plugin_redmine_backlog']['implementer_hours'].to_f || 0.0
-      flash[:warning] = l(:notice_backlog_estimated_time_exceeded) if (@sprint_hours - @estimated_hours) < 0
+      @sprint_hours = Setting.plugin_redmine_backlog['sprint_hours'].to_f || 0.0
+      flash.now[:estimated_error] = l(:error_backlog_estimated_time_exceeded) if (@sprint_hours - @estimated_hours) < 0
     end
 
     # Use callbacks to share common setup or constraints between actions.

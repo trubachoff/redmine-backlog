@@ -55,7 +55,6 @@ class Backlog < ActiveRecord::Base
       # find position where to placed agile card
       positions_arr = []
       context[:params][:positions].each {|k,v| positions_arr[v[:position].to_i] = k.to_i }
-      # to_position = context[:params][:positions][issue.id.to_s][:position].to_i
       to_position = positions_arr.index(issue.id)
       to_issue = Issue.where(status_id: issue.status_id).joins(:agile_data).find_by(agile_data: {position: to_position})
       to_issue_id = to_issue.present? ? to_issue.id : issue.id
@@ -84,4 +83,23 @@ class Backlog < ActiveRecord::Base
     statuses_ids = Setting.plugin_redmine_backlog['backlog_view_statuses'].to_a
     Backlog.joins(:issue).where('issues.status_id' => statuses_ids).rank(:row_order)
   end
+
+  def self.is_implementers_owerflow?
+    true if Backlog.all.find { |e| e.implementer_hours < 0 }
+  end
+
+  def assigned_to_id
+    self.issue.assigned_to_id
+  end
+
+  def implementer_hours
+    implementer_hours = Setting.plugin_redmine_backlog['implementer_hours'].to_f || 0.0
+    if self.assigned_to_id
+      implementer_hours - Backlog.joins(:issue).where('issues.assigned_to_id' => self.assigned_to_id).estimated_hours
+    else
+      0.0
+    end
+  end
+
+
 end

@@ -1,8 +1,6 @@
-# English strings go here for Rails i18n
 en:
-  # my_label: "My label"
   label_implementer_hours: Implementer time
   label_sprint_estimated_hours: Sprint estimated time
   label_backlog_view_statuses: View statuses In Sprint
-  notice_backlog_estimated_time_exceeded: The expected time is exceeded
-  error_cannot_update_row_order: Cannot update row order position
+  error_backlog_estimated_time_exceeded: The expected time is exceeded
+  error_backlog_implementer_time_exceeded: Implementer time is exceeded
