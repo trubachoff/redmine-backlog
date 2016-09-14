@@ -84,6 +84,14 @@ class Backlog < ActiveRecord::Base
     Backlog.joins(:issue).where('issues.status_id' => statuses_ids).rank(:row_order)
   end
 
+  def self.is_implementers_owerflow?
+    true if Backlog.all.find { |e| e.implementer_hours < 0 }
+  end
+
+  def self.implementers_owerflow
+    Backlog.all.find_all { |e| e.implementer_hours < 0 }
+  end
+
   def assigned_to_id
     self.issue.assigned_to_id
   end
@@ -95,14 +103,6 @@ class Backlog < ActiveRecord::Base
     else
       0.0
     end
-  end
-
-  def self.is_implementers_owerflow?
-    true if Backlog.all.find { |e| e.implementer_hours < 0 }
-  end
-
-  def self.implementers_owerflow
-    Backlog.all.find_all { |e| e.implementer_hours < 0 }
   end
 
 end

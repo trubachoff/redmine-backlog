@@ -36,8 +36,8 @@ class BacklogsController < ApplicationController
 
     sprint_hours
 
-    flash.now[:implementer_error] = l(:error_backlog_implementer_time_exceeded,
-                                      implementers: Backlog::implementers_owerflow.map {|e| e.issue.assigned_to.name}.uniq.join(', ')) if Backlog::is_implementers_owerflow?
+    flash.now[:implementer_error] = l( :error_backlog_implementers_time_exceeded,
+      implementers: Backlog::implementers_owerflow.map {|e| "#{e.issue.assigned_to.name} (#{e.implementer_hours.abs})"}.uniq.join(', ') ) if Backlog::is_implementers_owerflow?
   end
 
   def update_row_order
@@ -58,7 +58,7 @@ class BacklogsController < ApplicationController
       @estimated_hours = Backlog::estimated_hours
       @spent_hours = Backlog::spent_hours
       @sprint_hours = Setting.plugin_redmine_backlog['sprint_hours'].to_f || 0.0
-      flash.now[:estimated_error] = l(:error_backlog_estimated_time_exceeded) if (@sprint_hours - @estimated_hours) < 0
+      # flash.now[:estimated_error] = l(:error_backlog_estimated_time_exceeded) if (@sprint_hours - @estimated_hours) < 0
     end
 
     # Use callbacks to share common setup or constraints between actions.
