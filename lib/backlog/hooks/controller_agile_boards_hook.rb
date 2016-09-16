@@ -13,12 +13,12 @@ module RedmineAgile
 
     end
 
-    # class RedmineToolbarHookListener < Redmine::Hook::ViewListener
-    #   # Adds javascript and stylesheet tags
-    #   def view_layouts_base_html_head(context)
-    #     javascript_include_tag('textile.js','jstoolbar.js') +
-    #     stylesheet_link_tag('jstoolbar.css')
-    #   end
-    # end
+    class RedmineToolbarHookListener < Redmine::Hook::ViewListener
+      # Adds javascript and stylesheet tags
+      def view_layouts_base_html_head(context)
+        javascript_include_tag('jstoolbar/jstoolbar.js', 'jstoolbar/textile.js') +
+        stylesheet_link_tag('jstoolbar.css')
+      end
+    end
   end
 end
