@@ -121,8 +121,11 @@ end %>
 
 <% if @journals.present? %>
 <div id="history">
-<h3 class="collapsible collapsed"><%=l(:label_history)%></h3>
-<%= render :partial => 'issues/history', :locals => { :issue => @issue, :journals => @journals } %>
+<fieldset id="history-content" class="collapsible collapsed">
+<legend onclick="toggleFieldset(this);"><h3><%=l(:label_history)%></h3></legend>
+<div style="display: none;">
+  <%= render :partial => 'issues/history', :locals => { :issue => @issue, :journals => @journals } %>
+</div>
 </div>
 <% end %>
 
