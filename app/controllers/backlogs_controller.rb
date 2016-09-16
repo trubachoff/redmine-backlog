@@ -10,7 +10,11 @@ class BacklogsController < ApplicationController
   include SortHelper
   helper :issues
   helper :context_menus
-  helper :backlogs
+  # helper :backlogs
+  helper :watchers
+  helper :custom_fields
+  helper :attachments
+  helper :issue_relations
 
   rescue_from Query::StatementInvalid, :with => :query_statement_invalid
 
@@ -55,10 +59,27 @@ class BacklogsController < ApplicationController
 
   def show
     logger.info "issue_id => #{params[:id]}"
-    @issue = @object = Issue.find(params[:id])
-    render :template => 'backlogs/show', :layout => false, :issue => @issue
-    rescue ActiveRecord::RecordNotFound
-      render_404
+    @issue = Issue.find(params[:id])
+
+    @journals = @issue.journals.includes(:user, :details).
+                    references(:user, :details).
+                    reorder(:created_on, :id).to_a
+    @journals.each_with_index {|j,i| j.indice = i+1}
+    @journals.reject!(&:private_notes?) unless User.current.allowed_to?(:view_private_notes, @issue.project)
+    Journal.preload_journals_details_custom_fields(@journals)
+    @journals.select! {|journal| journal.notes? || journal.visible_details.any?}
+    @journals.reverse! if User.current.wants_comments_in_reverse_order?
+
+    @changesets = @issue.changesets.visible.preload(:repository, :user).to_a
+    @changesets.reverse! if User.current.wants_comments_in_reverse_order?
+
+    @relations = @issue.relations.select {|r| r.other_issue(@issue) && r.other_issue(@issue).visible? }
+    @allowed_statuses = @issue.new_statuses_allowed_to(User.current)
+    @priorities = IssuePriority.active
+    @time_entry = TimeEntry.new(:issue => @issue, :project => @issue.project)
+    @relation = IssueRelation.new
+
+    render :template => 'backlogs/show', :layout => false
   end
 
   private

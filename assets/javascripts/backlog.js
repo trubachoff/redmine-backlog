@@ -47,7 +47,11 @@ $(function() {
       url: '/backlogs/' + id,
       dataType: 'html',
     }).done(function(response) {
-    $sidebar.html(response);
+      $sidebar.html(response);
     });
   });
+  closeSidebar = function() {
+    $sidebar.html('');
+    $main.addClass('nosidebar')
+  }
 });

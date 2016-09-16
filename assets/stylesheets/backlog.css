@@ -1,3 +1,74 @@
+
+/*----------------------------------------*\
+  C) MAIN CONTENT & SIDEBAR
+\*----------------------------------------*/
+#main {
+  background-color: #fff;
+}
+
+#content {
+  width: 60%;
+}
+
+#sidebar {
+  width: 37%;
+}
+
+
+.splitcontentleft {
+  width: 100%;
+}
+
+.splitcontentright {
+  width: 100%;
+}
+
+/*----------------------------------------*\
+  E) UX ELEMENTS
+\*----------------------------------------*/
+/* loading indicator */
+#ajax-indicator {
+  display: none !important;
+}
+
+/*----------------------------------------*\
+  F) PAGE SPECIFIC STYLES
+\*----------------------------------------*/
+
+.version-overview table.progress {width:75%;}
+div#version-summary {float:none; width:100%; margin-left:0;}
+body.controller-versions.action-show div#roadmap .related-issues {width:100%;}
+
+/* History and Changeset */
+div#issue-changesets {
+  float: none;
+  width: auto;
+  margin-left: 0;
+  padding-left: 0;
+  margin-bottom: 2em;
+}
+
+div#issue-changesets div.changeset {
+  padding-top: 1em;
+}
+
+#sidebar div.issue {
+  margin-left: -10px;
+  margin-right: 5px;
+}
+
+#sidebar div.journal ul.details {
+  color: #959595;
+  margin-bottom: 1.5em;
+}
+
+a.close-icon {
+  width: auto;
+}
+a.close-sidebar {
+  float: right;
+  margin-right: 1em;
+}
 .red {
   color: rgb(200,0,0);
 }
@@ -19,4 +90,113 @@ tr.bg_error {
     background-color: rgba(200,0,0,0.1);
     border-color: #dd0000;
     color: #880000;
+}
+
+/*----------------------------------------*\
+  G) FORMS
+\*----------------------------------------*/
+
+#sidebar input, #sidebar select, #sidebar textarea {
+  max-width: 100%;
+}
+
+/* tabular forms resets for mobile */
+.tabular p, .tabular.settings p {
+  padding-left: 0;
+}
+
+.tabular label, .tabular.settings label {
+  display: block;
+  width: 100%;
+  margin-left: 0;
+  text-align: left;
+}
+
+.tabular input, .tabular select, .tabular textarea {
+  width: 100%;
+  max-width: 100%;
+}
+
+.tabular input[type="checkbox"], .tabular input.date {
+  width: auto;
+  max-width: 95%;
+}
+
+/* new issue form */
+#all_attributes p:first-child {
+  float: none !important;
+}
+
+#issue_is_private_label {
+  display: inline;
+}
+
+span#watchers_inputs {
+  width: 100%;
+}
+
+/* subtasks and related issues list on issue show */
+#issue_tree .issues, #relations .issues {
+  border-collapse: separate;
+  border-spacing: 0 1em; /* vertical space between tasks */
+}
+
+#issue_tree .issue > td:not(.checkbox), #relations .issue > td:not(.checkbox) {
+  display: block;
+  float: left;
+  text-align: left;
+  padding-right: 5px;
+}
+
+#issue_tree .issue > td, #relations .issue > td, #issue_tree .issue .user {
+  text-overflow: ellipsis; /* if text exceeds its space, add ... */
+  overflow: hidden;
+}
+
+#issue_tree .issue > td.subject, #relations .issue > td.subject {
+  width: 100% !important; /* let subject have one full width column */
+}
+
+#issue_tree .issue > td:not(.checkbox), #relations .issue > td:not(.checkbox) {
+  width: 33.33%; /* three columns for all cells that are not subject */
+}
+
+#relations .issues, #relations .issue {
+  position: relative; /* needed for .buttons positioning */
+}
+
+/* positioniong of unline button */
+#sidebar #relations .issue > td.buttons {
+  text-align: right;
+  position: absolute;
+  right: 0;
+  margin: 0;
+  padding-right: 0;
+}
+
+#sidebar #relations .issue .buttons a {
+  vertical-align: middle;
+  padding-right: 5px;
+}
+
+#relations .issue > td.subject {
+  padding-right: 25px; /* this is the spaces that .buttons uses next to subject */
+}
+
+/* attachment upload form */
+#attachments_fields span {
+  position: relative;
+  clear: both;
+  margin-bottom: 1em;
+  white-space: normal;
+}
+#attachments_fields span a.remove-upload {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+#attachments_fields input.description {
+  margin-left: 0;
+  width: 100%;
 }
