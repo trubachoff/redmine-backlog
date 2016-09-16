@@ -17,7 +17,7 @@
     </tr></thead>
     <tbody>
     <% for backlog in @backlogs %>
-    <tr id="issue-<%= backlog.issue.id %>" class="item hascontextmenu <%= 'bg_error' if backlog.implementer_hours < 0 %>" data-item-id="<%= backlog.id %>">
+    <tr id="issue-<%= backlog.issue.id %>" class="item issue hascontextmenu <%= 'bg_error' if backlog.implementer_hours < 0 %>" data-item-id="<%= backlog.id %>">
       <td class="checkbox hide-when-print"><%= check_box_tag("ids[]", backlog.issue.id, false, :id => nil) %></td>
     <% @query.inline_columns.each do |column| %>
       <td class="<%= column.css_classes %>"><%= column_content(column, backlog.issue) %></td>

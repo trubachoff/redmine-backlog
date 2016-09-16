@@ -81,6 +81,9 @@
   </div>
 <% end %>
 
+<% content_for :sidebar do %>
+<% end %>
+
 <%= error_messages_for 'query' %>
 <% if @issues.empty? && @query.valid? %>
 <p class="nodata"><%= l(:label_no_data) %></p>

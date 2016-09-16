@@ -32,3 +32,22 @@ jQuery(function() {
     });
   }
 });
+
+$(function() {
+  $main = $('#main');
+  $sidebar = $('#sidebar');
+
+  $('tr.issue').click(function() {
+    $main.removeClass('nosidebar');
+
+    var id = $(this)[0].id.slice(6);
+    console.info('Backlog issue.id=', id)
+    $.ajax({
+      type: 'GET',
+      url: '/backlogs/' + id,
+      dataType: 'html',
+    }).done(function(response) {
+    $sidebar.html(response);
+    });
+  });
+});

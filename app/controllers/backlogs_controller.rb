@@ -2,7 +2,7 @@ class BacklogsController < ApplicationController
 
   unloadable
 
-  before_filter :authorize_global, :only => [:index, :update_row_order]
+  # before_filter :authorize_global, :only => [:index, :update_row_order]
 
   helper :queries
   include QueriesHelper
@@ -10,6 +10,7 @@ class BacklogsController < ApplicationController
   include SortHelper
   helper :issues
   helper :context_menus
+  helper :backlogs
 
   rescue_from Query::StatementInvalid, :with => :query_statement_invalid
 
@@ -50,6 +51,14 @@ class BacklogsController < ApplicationController
       call_hook :controller_row_order_update_after_save, { :backlog_params => backlog_params, :backlog => @backlog }
     end
     render nothing: true # this is a POST action, updates sent via AJAX, no view rendered
+  end
+
+  def show
+    logger.info "issue_id => #{params[:id]}"
+    @issue = @object = Issue.find(params[:id])
+    render :template => 'backlogs/show', :layout => false, :issue => @issue
+    rescue ActiveRecord::RecordNotFound
+      render_404
   end
 
   private
