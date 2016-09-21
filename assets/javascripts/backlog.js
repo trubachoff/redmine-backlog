@@ -46,12 +46,15 @@ $(function() {
       type: 'GET',
       url: '/backlogs/' + id,
       dataType: 'html',
-    }).done(function(response) {
-      $sidebar.html(response);
+    })
+    .done(function(issue) {
+      $sidebar.html(issue).css({"left":"400px","opacity": 0}).animate({"left":"0px", "opacity": 1}, "ease");
     });
   });
-  closeSidebar = function() {
-    $sidebar.html('');
-    $main.addClass('nosidebar')
-  }
+
 });
+
+function closeSidebar() {
+  $sidebar.html('');
+  $main.addClass('nosidebar')
+}

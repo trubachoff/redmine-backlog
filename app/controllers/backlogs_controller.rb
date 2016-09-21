@@ -10,12 +10,12 @@ class BacklogsController < ApplicationController
   include SortHelper
   helper :issues
   helper :context_menus
-  # helper :backlogs
   helper :watchers
   helper :custom_fields
   helper :attachments
   helper :issue_relations
   helper :application
+  helper :journals
 
   rescue_from Query::StatementInvalid, :with => :query_statement_invalid
 
@@ -46,18 +46,6 @@ class BacklogsController < ApplicationController
       implementers: Backlog::implementers_owerflow.map {|e| "#{e.issue.assigned_to.name} (#{e.implementer_hours.abs})"}.uniq.join(', ') ) if Backlog::is_implementers_owerflow?
   end
 
-  def update_row_order
-    @backlog = Backlog.find(backlog_params[:backlog_id])
-    @backlog.update_attribute :row_order_position, backlog_params[:row_order]
-
-    call_hook :controller_row_order_update_before_save, { :backlog_params => backlog_params, :backlog => @backlog }
-
-    if @backlog.save
-      call_hook :controller_row_order_update_after_save, { :backlog_params => backlog_params, :backlog => @backlog }
-    end
-    render nothing: true # this is a POST action, updates sent via AJAX, no view rendered
-  end
-
   def show
     logger.info "issue_id => #{params[:id]}"
     @issue = Issue.find(params[:id])
@@ -81,6 +69,18 @@ class BacklogsController < ApplicationController
     @relation = IssueRelation.new
 
     render :template => 'backlogs/show', :layout => false
+  end
+
+  def update_row_order
+    @backlog = Backlog.find(backlog_params[:backlog_id])
+    @backlog.update_attribute :row_order_position, backlog_params[:row_order]
+
+    call_hook :controller_row_order_update_before_save, { :backlog_params => backlog_params, :backlog => @backlog }
+
+    if @backlog.save
+      call_hook :controller_row_order_update_after_save, { :backlog_params => backlog_params, :backlog => @backlog }
+    end
+    render nothing: true # this is a POST action, updates sent via AJAX, no view rendered
   end
 
   private

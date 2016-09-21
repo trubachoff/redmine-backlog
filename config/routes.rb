@@ -7,6 +7,7 @@ resources :backlogs do
 
   collection do
     put :update_row_order
+    get :history
   end
 
 end
