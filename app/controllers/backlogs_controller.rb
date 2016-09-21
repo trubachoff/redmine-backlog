@@ -1,8 +1,6 @@
 class BacklogsController < ApplicationController
-
   unloadable
-
-  # before_filter :authorize_global, :only => [:index, :update_row_order]
+  before_filter :authorize_global, :only => [:index, :update_row_order]
 
   helper :queries
   include QueriesHelper
@@ -44,6 +42,8 @@ class BacklogsController < ApplicationController
 
     flash.now[:implementer_error] = l( :error_backlog_implementers_time_exceeded,
       implementers: Backlog::implementers_owerflow.map {|e| "#{e.issue.assigned_to.name} (#{e.implementer_hours.abs})"}.uniq.join(', ') ) if Backlog::is_implementers_owerflow?
+
+    render :template => 'backlogs/index', layout: !request.xhr?
   end
 
   def show
@@ -68,7 +68,27 @@ class BacklogsController < ApplicationController
     @time_entry = TimeEntry.new(:issue => @issue, :project => @issue.project)
     @relation = IssueRelation.new
 
-    render :template => 'backlogs/show', :layout => false
+    respond_to do |format|
+      format.html { render template: 'backlogs/show', layout: !request.xhr? }
+      format.js
+    end
+  end
+
+  def history
+    @issue = Issue.find(params[:id])
+
+    @journals = @issue.journals.includes(:user, :details).
+                    references(:user, :details).
+                    reorder(:created_on, :id).to_a
+    @journals.each_with_index {|j,i| j.indice = i+1}
+    @journals.reject!(&:private_notes?) unless User.current.allowed_to?(:view_private_notes, @issue.project)
+    Journal.preload_journals_details_custom_fields(@journals)
+    @journals.select! {|journal| journal.notes? || journal.visible_details.any?}
+    @journals.reverse! if User.current.wants_comments_in_reverse_order?
+
+    respond_to do |format|
+      format.js
+    end
   end
 
   def update_row_order
@@ -84,7 +104,7 @@ class BacklogsController < ApplicationController
   end
 
   private
-    # Calculate In Sprint estimated and sent hours
+    # Calculate In Sprint issues estimated and sent hours
     def sprint_hours
       @estimated_hours = Backlog::estimated_hours
       @spent_hours = Backlog::spent_hours

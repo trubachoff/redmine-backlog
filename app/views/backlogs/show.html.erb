@@ -1,14 +1,20 @@
-<%= render :partial => 'action_menu' %>
+<div class="contextual">
+  <% attrs = { parent_issue_id: @issue }
+    attrs[:tracker_id] = @issue.tracker unless @issue.tracker.disabled_core_fields.include?('parent_issue_id') %>
+  <%= link_to(l(:button_add_subtask), new_project_issue_path(@issue.project, :issue => attrs), class: 'icon icon-add') %>
+  <%= link_to_new_subtask(@issue) if User.current.allowed_to?(:manage_subtasks, @project)  %>
+  <%= link_to_function l(:button_close), '#', :class => 'icon close-icon close-sidebar', :onclick => 'closeSidebar()' %>
+</div>
 <div style="clear: both;"></div>
+
 <h2><%= issue_heading(@issue) %></h2>
 
 <div class="issue">
   <div class="details">
     <%= avatar(@issue.author, :size => "30") %>
     <div class="subject">
-      <%= render_issue_subject_with_tree(@issue) %>
+    <%= render_issue_subject_with_tree(@issue) %>
     </div>
-
     <div class="author">
       <%= authoring @issue.created_on, @issue.author %>.
       <% if @issue.created_on != @issue.updated_on %>
@@ -18,71 +24,24 @@
   </div>
 
   <div class="attributes">
-  <%= form_for @issue, :remote => true do |f| %>
-    <% form_css_id = "#" + f.options[:html][:id] %>
-    <%= javascript_tag do %>
-      $('#estimated_hours').on('change keyup paste', function() {
-        $('#estimated_hours_submit').show();
-      });
-      $('<%=form_css_id %>').on('ajax:success', function() {
-        $('#estimated_hours_submit').hide();
-      });
-    <% end %>
-    <% unless @issue.disabled_core_fields.include?('estimated_hours') %>
-      <%= f.label l(:field_estimated_hours) %>:
-      <%= f.number_field(:estimated_hours, in: 0..500.0, id: 'estimated_hours') %>
-      <%= submit_tag l(:button_save), id: 'estimated_hours_submit', style: 'display:none' %>
-    <% end %>
-  <% end %>
+  <%= render :partial => 'attributes', :locals => { :issue => @issue } %>
   </div> <!-- .attributes -->
 
   <% if @issue.description? || @issue.attachments.any? %>
   <% if @issue.description? %>
   <div class="description">
-    <div class="contextual">
-    <% if @issue.editable? %>
-      <%= link_to_function content_tag(:span, l(:button_edit), :class => 'icon icon-edit'), '$(this).hide(); $("#description").hide(); $("#issue_description_and_toolbar").show(); return false', :id => 'desc_edit_btn' unless @issue.new_record? %>
-    <% end %>
-    <%= link_to l(:button_quote), quoted_issue_path(@issue), :remote => true, :method => 'post', :class => 'icon icon-comment' if @issue.notes_addable? %>
-    </div>
-    <p><strong><%=l(:field_description)%></strong></p>
-
-    <%= form_for @issue, html: {id: 'issue_description_form'}, :remote => true do |f| %>
-      <%= javascript_tag do %>
-        $('#issue_description_form').on('ajax:success', function() {
-          $('#issue_description_and_toolbar').hide();
-          $('#desc_edit_btn').show();
-          $('#description').show();
-        });
-      <% end %>
-      <%= call_hook(:view_issues_form_details_top, { :issue => @issue, :form => f }) %>
-      <%= hidden_field_tag 'form_update_triggered_by', '' %>
-      <p>
-        <%= content_tag 'span', :id => "issue_description_and_toolbar", :style => 'display:none' do %>
-          <%= f.text_area :description,
-            :cols => 60,
-            :rows => (@issue.description.blank? ? 10 : [[10, @issue.description.length / 50].max, 100].min),
-            :accesskey => accesskey(:edit),
-            :class => 'wiki-edit',
-            :no_label => true %>
-            <%= submit_tag l(:button_save) %>
-            <%= link_to l(:button_cancel), {}, :onclick => "$('#issue_description_and_toolbar').hide(); $('#desc_edit_btn').show(); $('#description').show(); return false" %>
-        <% end %>
-      </p>
-    <% end %>
-
-    <div id="description" class="wiki">
-      <%= textilizable @issue, :description, :attachments => @issue.attachments %>
-    </div>
+  <%= render partial: 'description', locals: { issue: @issue } %>
+  </div> <!-- .description -->
   <% end %>
   <%= link_to_attachments @issue, :thumbnails => true %>
   <% end %>
-
-  <%= call_hook(:view_issues_show_description_bottom, :issue => @issue) %>
-  </div> <!-- .description -->
 </div><!-- .issues -->
 
+<div class="contextual">
+  <%= link_to l(:add_note), edit_issue_path(@issue), style: 'display:none', id: 'add_note_btn', :onclick => 'showAndScrollTo("update", "issue_notes"); $(this).hide();', :class => 'icon icon-edit', :accesskey => accesskey(:edit) if @issue.editable? %>
+</div>
 <div style="clear: both;"></div>
+
 <% if @issue.editable? %>
   <div id="update">
   <%= render :partial => 'edit' %>
@@ -95,11 +54,13 @@
   <fieldset class="collapsible">
   <legend onclick="toggleFieldset(this);"><h3><%=l(:label_history)%></h3></legend>
   <div id="history_content">
-    <%= render :partial => 'history', :locals => { :issue => @issue, :journals => @journals } %>
+    <%= render :partial => 'issues/history', :locals => { :issue => @issue, :journals => @journals } %>
   </div>
 </div>
-
+<%= javascript_tag do %>
+  $('#issue_form').on('ajax:success', function() {
+    $('#update').hide();
+  });
 <% end %>
-
+<% end %>
 <div style="clear: both;"></div>
-<%= render :partial => 'action_menu' %>

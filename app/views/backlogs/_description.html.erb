@@ -1,0 +1,37 @@
+<div class="contextual">
+<% if @issue.editable? %>
+  <%= link_to_function content_tag(:span, l(:button_edit), :class => 'icon icon-edit'), '$(this).hide(); $("#description").hide(); $("#issue_description_and_toolbar").show(); return false', :id => 'desc_edit_btn' unless @issue.new_record? %>
+<% end %>
+<%= link_to l(:button_quote), quoted_issue_path(@issue), :remote => true, :method => 'post', :class => 'icon icon-comment' if @issue.notes_addable? %>
+</div>
+<p><strong><%=l(:field_description)%></strong></p>
+
+<%= form_for @issue, html: {id: 'issue_description_form'}, :remote => true do |f| %>
+  <%= javascript_tag do %>
+    $('#issue_description_form').on('ajax:success', function() {
+      $('#issue_description_and_toolbar').hide();
+      $('#desc_edit_btn').show();
+      $('#description').show();
+    });
+  <% end %>
+  <%= call_hook(:view_issues_form_details_top, { :issue => @issue, :form => f }) %>
+  <%= hidden_field_tag 'form_update_triggered_by', '' %>
+  <p>
+    <%= content_tag 'span', :id => "issue_description_and_toolbar", :style => 'display:none' do %>
+      <%= f.text_area :description,
+        :cols => 60,
+        :rows => (@issue.description.blank? ? 10 : [[10, @issue.description.length / 50].max, 100].min),
+        :accesskey => accesskey(:edit),
+        :class => 'wiki-edit',
+        :no_label => true %>
+        <%= submit_tag l(:button_change) %>
+        <%= link_to l(:button_cancel), {}, :onclick => "$('#issue_description_and_toolbar').hide(); $('#desc_edit_btn').show(); $('#description').show(); return false" %>
+    <% end %>
+  </p>
+<% end %>
+
+<div id="description" class="wiki">
+  <%= textilizable @issue, :description, :attachments => @issue.attachments %>
+</div>
+
+<%= call_hook(:view_issues_show_description_bottom, :issue => @issue) %>

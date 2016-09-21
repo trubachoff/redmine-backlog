@@ -1,5 +1,4 @@
 jQuery(function() {
-  var cells, desired_width, table_width;
   if ($('#sortable').length > 0) {
     return $('#sortable').sortable({
       axis: 'y',
@@ -34,27 +33,19 @@ jQuery(function() {
 });
 
 $(function() {
-  $main = $('#main');
-  $sidebar = $('#sidebar');
-
   $('tr.issue').click(function() {
-    $main.removeClass('nosidebar');
-
     var id = $(this)[0].id.slice(6);
-    console.info('Backlog issue.id=', id)
+    console.info('sidebar issue_id=', id)
     $.ajax({
       type: 'GET',
       url: '/backlogs/' + id,
-      dataType: 'html',
-    })
-    .done(function(issue) {
-      $sidebar.html(issue).css({"left":"400px","opacity": 0}).animate({"left":"0px", "opacity": 1}, "ease");
+      dataType: 'script',
     });
   });
 
 });
 
 function closeSidebar() {
-  $sidebar.html('');
-  $main.addClass('nosidebar')
+  $('#sidebar').html('');
+  $('#main').addClass('nosidebar');
 }

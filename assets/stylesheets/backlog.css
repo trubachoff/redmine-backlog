@@ -32,7 +32,7 @@
 \*----------------------------------------*/
 /* loading indicator */
 #ajax-indicator {
-  display: none !important;
+  /*display: none !important;*/
 }
 
 /*----------------------------------------*\
@@ -56,8 +56,9 @@ div#issue-changesets div.changeset {
   padding-top: 1em;
 }
 
-#sidebar div.issue {
-  margin-right: 5px;
+#sidebar {
+  padding-right: 5px;
+  box-sizing: border-box;
 }
 
 #sidebar div.journal ul.details {
@@ -147,6 +148,10 @@ h4 img.gravatar {
   margin-top: 0;
 }
 
+#estimated_hours {
+  text-align: right;
+  padding: 0 2px;
+}
 /*----------------------------------------*\
   G) FORMS
 \*----------------------------------------*/

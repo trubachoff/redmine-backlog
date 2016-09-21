@@ -9,11 +9,18 @@
     <% end %>
     </div>
     <%= javascript_tag do %>
+    var id = <%= @issue.id %>;
     $('#issue_form').on('ajax:success', function() {
       $('#update').hide();
       $('#issue_notes').val('');
+      $.ajax({
+        type: 'GET',
+        url: '/backlogs/history',
+        dataType: 'script',
+        data: { id: id }
+      });
     });
     <% end %>
-    <%= submit_tag l(:button_save) %>
-    <%= link_to l(:button_cancel), {}, :onclick => "$('#update').hide(); return false;" %>
+    <%= submit_tag l(:button_add) %>
+    <%= link_to l(:button_cancel), {}, :onclick => "$('#update').hide(); $('#add_note_btn').show(); return false;" %>
 <% end %>

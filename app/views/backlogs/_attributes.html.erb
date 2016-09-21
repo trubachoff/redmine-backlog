@@ -1,0 +1,21 @@
+<%= form_for @issue, :remote => true do |f| %>
+  <% form_css_id = "#" + f.options[:html][:id] %>
+  <%= javascript_tag do %>
+    $('#estimated_hours').on('change keyup paste', function() {
+      $('#estimated_hours_submit').show();
+    });
+    $('<%=form_css_id %>').on('ajax:success', function() {
+      $('#estimated_hours_submit').hide();
+      $.ajax({
+        type: 'GET',
+        url: '/backlogs/',
+        dataType: 'script',
+      });
+    });
+  <% end %>
+  <% unless @issue.disabled_core_fields.include?('estimated_hours') %>
+    <%= f.label l(:field_estimated_hours) %>:
+    <%= f.number_field(:estimated_hours, in: 0..500.0, id: 'estimated_hours') %>
+    <%= submit_tag l(:button_save), id: 'estimated_hours_submit', style: 'display:none' %>
+  <% end %>
+<% end %>

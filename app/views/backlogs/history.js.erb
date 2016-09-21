@@ -1,1 +1,1 @@
-$('#history_content').html("<%= escape_javascript(render partial: 'history', :formats => [:html]) %>');
+$('#history_content').html("<%= escape_javascript(render partial: 'issues/history', :locals => { :issue => @issue, :journals => @journals }, :formats => [:html]) %>");
