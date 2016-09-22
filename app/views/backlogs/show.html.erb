@@ -36,12 +36,12 @@
   <%= link_to_attachments @issue, :thumbnails => true %>
   <% end %>
 </div><!-- .issues -->
- <div style="clear: both;"></div>
 
 <% if @issue.editable? %>
   <div class="contextual">
     <%= link_to l(:add_note), edit_issue_path(@issue), style: 'display:none', id: 'add_note_btn', :onclick => 'showAndScrollTo("update", "issue_notes"); $(this).hide(); return false;', :class => 'icon icon-edit', :accesskey => accesskey(:edit) if @issue.editable? %>
   </div>
+  <div style="clear: both;"></div>
   <div id="update">
   <%= render :partial => 'edit' %>
   </div>
