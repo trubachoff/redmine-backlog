@@ -32,19 +32,6 @@ jQuery(function() {
   }
 });
 
-$(function() {
-  $('tr.issue').click(function() {
-    var id = $(this)[0].id.slice(6);
-    console.info('sidebar issue_id=', id)
-    $.ajax({
-      type: 'GET',
-      url: '/backlogs/' + id,
-      dataType: 'script',
-    });
-  });
-
-});
-
 function closeSidebar() {
   $('#sidebar').html('');
   $('#main').addClass('nosidebar');
