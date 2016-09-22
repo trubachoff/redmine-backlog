@@ -27,14 +27,22 @@
   <%= render :partial => 'attributes', :locals => { :issue => @issue } %>
   </div> <!-- .attributes -->
 
-  <% if @issue.description? || @issue.attachments.any? %>
-  <% if @issue.description? %>
   <div class="description">
-  <%= render partial: 'description', locals: { issue: @issue } %>
+    <div class="contextual">
+      <% if @issue.editable? %>
+      <%= link_to_function content_tag(:span, l(:button_edit), :class => 'icon icon-edit'), '$(this).hide(); $("#description").hide(); $("#issue_description_and_toolbar").show(); return false', :id => 'desc_edit_btn' unless @issue.new_record? %>
+      <% end %>
+      <%= link_to l(:button_quote), quoted_issue_path(@issue), :remote => true, :method => 'post', :class => 'icon icon-comment' if @issue.notes_addable? %>
+    </div>
+    <p><strong><%=l(:field_description)%></strong></p>
+    <div style="clear: both;"></div>
+    <% if @issue.description? || @issue.attachments.any? %>
+    <% if @issue.description? %>
+    <%= render partial: 'description', locals: { issue: @issue } %>
+    <% end %>
+    <%= link_to_attachments @issue, :thumbnails => true %>
+    <% end %>
   </div> <!-- .description -->
-  <% end %>
-  <%= link_to_attachments @issue, :thumbnails => true %>
-  <% end %>
 </div><!-- .issues -->
 
 <% if @issue.editable? %>
