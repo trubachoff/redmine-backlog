@@ -1,8 +1,8 @@
 <div class="contextual">
-<% if @issue.editable? %>
+  <% if @issue.editable? %>
   <%= link_to_function content_tag(:span, l(:button_edit), :class => 'icon icon-edit'), '$(this).hide(); $("#description").hide(); $("#issue_description_and_toolbar").show(); return false', :id => 'desc_edit_btn' unless @issue.new_record? %>
-<% end %>
-<%= link_to l(:button_quote), quoted_issue_path(@issue), :remote => true, :method => 'post', :class => 'icon icon-comment' if @issue.notes_addable? %>
+  <% end %>
+  <%= link_to l(:button_quote), quoted_issue_path(@issue), :remote => true, :method => 'post', :class => 'icon icon-comment' if @issue.notes_addable? %>
 </div>
 <p><strong><%=l(:field_description)%></strong></p>
 
@@ -11,6 +11,7 @@
     $('#issue_description_form').on('ajax:success', function() {
       $('#issue_description_and_toolbar').hide();
       $('#desc_edit_btn').show();
+      $('#description').html($('#issue_description').val());
       $('#description').show();
     });
   <% end %>
@@ -28,6 +29,7 @@
         <%= link_to l(:button_cancel), {}, :onclick => "$('#issue_description_and_toolbar').hide(); $('#desc_edit_btn').show(); $('#description').show(); return false" %>
     <% end %>
   </p>
+  <%= wikitoolbar_for 'issue_description' %>
 <% end %>
 
 <div id="description" class="wiki">

@@ -36,6 +36,8 @@
 <span class="pagination"><%= pagination_links_full @issue_pages, @issue_count %></span>
 <% end %>
 
+<%= context_menu issues_context_menu_path %>
+
 <%= javascript_tag do %>
   $('tr.issue').click(function() {
     var id = $(this)[0].id.slice(6);
@@ -47,5 +49,3 @@
     });
   });
 <% end %>
-
-<%= context_menu issues_context_menu_path %>

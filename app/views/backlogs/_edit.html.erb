@@ -6,6 +6,7 @@
     <% if @issue.notes_addable? %>
       <%= f.text_area :notes, :cols => 60, :rows => 10, :class => 'wiki-edit', :no_label => true %>
       <%= call_hook(:view_issues_edit_notes_bottom, { :issue => @issue, :notes => @notes, :form => f }) %>
+      <%= wikitoolbar_for :issue_notes %>
     <% end %>
     </div>
     <%= javascript_tag do %>
@@ -13,6 +14,7 @@
     $('#issue_form').on('ajax:success', function() {
       $('#update').hide();
       $('#issue_notes').val('');
+      $('#add_note_btn').show();
       $.ajax({
         type: 'GET',
         url: '/backlogs/history',
