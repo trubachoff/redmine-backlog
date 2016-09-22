@@ -9,6 +9,12 @@ class Backlog < ActiveRecord::Base
   include RankedModel
   ranks :row_order
 
+  cattr_accessor :statuses_ids, :implementer_hours_plan, :sprint_hours_plan
+
+  @@statuses_ids = Setting.plugin_redmine_backlog['backlog_view_statuses'].to_a
+  @@implementer_hours_plan = Setting.plugin_redmine_backlog['implementer_hours'].to_f || 0.0
+  @@sprint_hours_plan = Setting.plugin_redmine_backlog['sprint_hours'].to_f || 0.0
+
   def self.fill_backlog
     cf_id = CustomField.find_by_name('In Sprint').id
     issue_id_arr = CustomValue.where(custom_field_id: cf_id, value: 1).pluck :customized_id || []
@@ -72,7 +78,7 @@ class Backlog < ActiveRecord::Base
   end
 
   def self.estimated_hours
-    Backlog.joins(:issue).sum(:estimated_hours).to_f || 0.0
+    Backlog.joins(:issue).where('issues.status_id' => @@statuses_ids).sum(:estimated_hours).to_f || 0.0
   end
 
   def self.spent_hours
@@ -80,16 +86,7 @@ class Backlog < ActiveRecord::Base
   end
 
   def self.query_backlog
-    statuses_ids = Setting.plugin_redmine_backlog['backlog_view_statuses'].to_a
-    Backlog.joins(:issue).where('issues.status_id' => statuses_ids).rank(:row_order)
-  end
-
-  def self.is_implementers_owerflow?
-    true if Backlog.all.find { |e| e.implementer_hours < 0 }
-  end
-
-  def self.implementers_owerflow
-    Backlog.all.find_all { |e| e.implementer_hours < 0 }
+    Backlog.joins(:issue).where('issues.status_id' => @@statuses_ids).rank(:row_order)
   end
 
   def assigned_to_id
@@ -97,12 +94,19 @@ class Backlog < ActiveRecord::Base
   end
 
   def implementer_hours
-    implementer_hours = Setting.plugin_redmine_backlog['implementer_hours'].to_f || 0.0
     if self.assigned_to_id
-      implementer_hours - Backlog.joins(:issue).where('issues.assigned_to_id' => self.assigned_to_id).estimated_hours
+      @@implementer_hours_plan - Backlog.joins(:issue).where('issues.assigned_to_id' => self.assigned_to_id).where('issues.status_id' => Backlog.statuses_ids).estimated_hours
     else
       0.0
     end
+  end
+
+  def self.implementers_owerflow
+    Backlog.all.find_all { |e| e.implementer_hours < 0 }
+  end
+
+  def self.is_implementers_owerflow?
+    Backlog.implementers_owerflow.length > 0
   end
 
 end

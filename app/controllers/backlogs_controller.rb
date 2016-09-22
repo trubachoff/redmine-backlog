@@ -38,16 +38,17 @@ class BacklogsController < ApplicationController
       @issue_count_by_group = @query.issue_count_by_group
     end
 
-    sprint_hours
+    flash.now[:implementer_error] = l( :error_backlog_implementers_time_exceeded, { implementer_hours_plan: Backlog::implementer_hours_plan, implementers: Backlog::implementers_owerflow.map {|e| "#{e.issue.assigned_to.name} (#{e.implementer_hours.abs})"}.uniq.join(', ') } ) if Backlog::is_implementers_owerflow?
 
-    flash.now[:implementer_error] = l( :error_backlog_implementers_time_exceeded,
-      implementers: Backlog::implementers_owerflow.map {|e| "#{e.issue.assigned_to.name} (#{e.implementer_hours.abs})"}.uniq.join(', ') ) if Backlog::is_implementers_owerflow?
+    @estimated_hours = Backlog::estimated_hours
+    @spent_hours = Backlog::spent_hours
+    @sprint_hours_plan = Backlog::sprint_hours_plan
 
     render :template => 'backlogs/index', layout: !request.xhr?
   end
 
   def show
-    logger.info "issue_id => #{params[:id]}"
+    logger.info "issue_id => '#{params[:id]}'"
     @issue = Issue.find(params[:id])
 
     @journals = @issue.journals.includes(:user, :details).
@@ -104,14 +105,6 @@ class BacklogsController < ApplicationController
   end
 
   private
-    # Calculate In Sprint issues estimated and sent hours
-    def sprint_hours
-      @estimated_hours = Backlog::estimated_hours
-      @spent_hours = Backlog::spent_hours
-      @sprint_hours = Setting.plugin_redmine_backlog['sprint_hours'].to_f || 0.0
-      # flash.now[:estimated_error] = l(:error_backlog_estimated_time_exceeded) if (@sprint_hours - @estimated_hours) < 0
-    end
-
     # Use callbacks to share common setup or constraints between actions.
     def set_backlog
       @backlog = backlog.find(params[:id])
