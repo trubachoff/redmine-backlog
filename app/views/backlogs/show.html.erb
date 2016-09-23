@@ -36,10 +36,8 @@
     </div>
     <p><strong><%=l(:field_description)%></strong></p>
     <div style="clear: both;"></div>
-    <% if @issue.description? || @issue.attachments.any? %>
-    <% if @issue.description? %>
     <%= render partial: 'description', locals: { issue: @issue } %>
-    <% end %>
+    <% if @issue.attachments.any? %>
     <%= link_to_attachments @issue, :thumbnails => true %>
     <% end %>
   </div> <!-- .description -->
