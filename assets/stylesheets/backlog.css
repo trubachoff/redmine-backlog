@@ -152,6 +152,11 @@ h4 img.gravatar {
   text-align: right;
   padding: 0 2px;
 }
+
+.active-item-shadow {
+  box-shadow: 2px 2px 5px 0px rgba(0,0,0,0.1);
+}
+
 /*----------------------------------------*\
   G) FORMS
 \*----------------------------------------*/

@@ -95,14 +95,18 @@ class Backlog < ActiveRecord::Base
 
   def implementer_hours
     if self.assigned_to_id
-      @@implementer_hours_plan - Backlog.joins(:issue).where('issues.assigned_to_id' => self.assigned_to_id).where('issues.status_id' => Backlog.statuses_ids).estimated_hours
+      Backlog.joins(:issue).where('issues.assigned_to_id' => self.assigned_to_id).where('issues.status_id' => Backlog.statuses_ids).estimated_hours
     else
       0.0
     end
   end
 
+  def implementer_remain
+    @@implementer_hours_plan - self.implementer_hours
+  end
+
   def self.implementers_owerflow
-    Backlog.all.find_all { |e| e.implementer_hours < 0 }
+    Backlog.all.find_all { |e| e.implementer_remain < 0 }
   end
 
   def self.is_implementers_owerflow?

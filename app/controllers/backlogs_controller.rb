@@ -38,7 +38,7 @@ class BacklogsController < ApplicationController
       @issue_count_by_group = @query.issue_count_by_group
     end
 
-    flash.now[:implementer_error] = l( :error_backlog_implementers_time_exceeded, { implementer_hours_plan: Backlog::implementer_hours_plan, implementers: Backlog::implementers_owerflow.map {|e| "#{e.issue.assigned_to.name} (#{e.implementer_hours.abs})"}.uniq.join(', ') } ) if Backlog::is_implementers_owerflow?
+    flash.now[:implementer_error] = l( :error_backlog_implementers_time_exceeded, { implementer_hours_plan: Backlog::implementer_hours_plan, implementers: Backlog::implementers_owerflow.map {|e| "#{e.issue.assigned_to.name} #{e.implementer_hours.abs}(#{e.implementer_remain.abs})"}.uniq.join(', ') } ) if Backlog::is_implementers_owerflow?
 
     @estimated_hours = Backlog::estimated_hours
     @spent_hours = Backlog::spent_hours
