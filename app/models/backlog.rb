@@ -28,8 +28,9 @@ class Backlog < ActiveRecord::Base
     Backlog.joins(:issue, :agile_data).order('agile_data.position, backlogs.row_order').each { |b| b.update_attribute :row_order_position, (i += 1) }
   end
 
-  def self.sort_agile_data_position
-    statuses_counter = []
+  def self.sort_agile_data_positions
+    # sort Backlog
+    statuses_counter = {}
     Backlog.all.order(:row_order).each do |backlog|
       if statuses_counter[backlog.status.id].nil?
         statuses_counter[backlog.status.id] = 0
@@ -40,18 +41,19 @@ class Backlog < ActiveRecord::Base
       backlog.agile_data.save
     end
 
-    issue_id_arr = Issue.pluck :id || []
-    backlog_issue_id_arr = Backlog.pluck :issue_id || []
-
-    Issue.joins(:agile_data).order('agile_data.position').find((issue_id_arr - backlog_issue_id_arr)).each do |issue|
-      if statuses_counter[issue.status.id].nil?
-        statuses_counter[issue.status.id] = 0
-      else
-        statuses_counter[issue.status.id] += 1
-      end
-      issue.agile_data.position = 0 if issue.agile_data.position.nil?
-      issue.agile_data.position = statuses_counter[issue.status.id] if statuses_counter[issue.status.id] > issue.agile_data.position
+    # sort others
+    Issue.eager_load(:agile_data).order('agile_data.position').where(status_id: statuses_counter.keys).where.not(id: Backlog.pluck(:id)).each do |issue|
+      statuses_counter[issue.status_id] += 1
+      issue.agile_data.position = statuses_counter[issue.status_id]
       issue.agile_data.save
+    end
+  end
+
+  def update_agile_position
+    backlog_ids = Backlog.eager_load(:issue).where('issues.status_id' => self.issue.status_id).order(:row_order).pluck(:issue_id)
+    AgileData.where(issue_id: backlog_ids).each do |agile_data|
+      agile_data.position = backlog_ids.index(agile_data.issue_id)
+      agile_data.save
     end
   end
 

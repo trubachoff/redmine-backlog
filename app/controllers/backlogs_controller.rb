@@ -96,10 +96,10 @@ class BacklogsController < ApplicationController
     @backlog = Backlog.find(backlog_params[:backlog_id])
     @backlog.update_attribute :row_order_position, backlog_params[:row_order]
 
-    call_hook :controller_row_order_update_before_save, { :backlog_params => backlog_params, :backlog => @backlog }
+    call_hook :controller_row_order_update_before_save, { :params => backlog_params, :backlog => @backlog }
 
     if @backlog.save
-      call_hook :controller_row_order_update_after_save, { :backlog_params => backlog_params, :backlog => @backlog }
+      call_hook :controller_row_order_update_after_save, { :params => backlog_params, :backlog => @backlog }
     end
     render nothing: true # this is a POST action, updates sent via AJAX, no view rendered
   end
