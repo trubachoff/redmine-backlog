@@ -157,6 +157,9 @@ h4 img.gravatar {
   box-shadow: 2px 2px 5px 0px rgba(0,0,0,0.1);
 }
 
+.queries-buttons {
+  margin: 1em 0;
+}
 /*----------------------------------------*\
   G) FORMS
 \*----------------------------------------*/

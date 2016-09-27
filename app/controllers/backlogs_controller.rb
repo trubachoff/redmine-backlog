@@ -14,6 +14,7 @@ class BacklogsController < ApplicationController
   helper :issue_relations
   helper :application
   helper :journals
+  helper :backlogs
 
   rescue_from Query::StatementInvalid, :with => :query_statement_invalid
 

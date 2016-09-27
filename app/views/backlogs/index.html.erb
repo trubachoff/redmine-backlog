@@ -19,12 +19,12 @@
   <% end %>
 </div>
 
-<h3><%= @query.new_record? ? l(:label_issue_plural) : @query.name %></h3>
 <% html_title(@query.new_record? ? l(:label_issue_plural) : @query.name) %>
 
-<%= render partial: 'filters', locals: { project: @project, query: @query } %>
+<%= render_queries_buttons %>
 
 <% content_for :sidebar do %>
+
 <% end %>
 
 <%= error_messages_for 'query' %>
