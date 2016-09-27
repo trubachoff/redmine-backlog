@@ -9,15 +9,15 @@ class Backlog < ActiveRecord::Base
   include RankedModel
   ranks :row_order
 
-  cattr_accessor :statuses_ids, :implementer_hours_plan, :sprint_hours_plan
+  cattr_accessor :statuses_ids, :implementer_hours_plan, :sprint_hours_plan, :cf_id
 
   @@statuses_ids = Setting.plugin_redmine_backlog['backlog_view_statuses'].to_a
   @@implementer_hours_plan = Setting.plugin_redmine_backlog['implementer_hours'].to_f || 0.0
   @@sprint_hours_plan = Setting.plugin_redmine_backlog['sprint_hours'].to_f || 0.0
+  @@cf_id = CustomField.find_by_name('In Sprint').id
 
   def self.fill_backlog
-    cf_id = CustomField.find_by_name('In Sprint').id
-    issue_id_arr = CustomValue.where(custom_field_id: cf_id, value: 1)
+    issue_id_arr = CustomValue.where(custom_field_id: @@cf_id, value: 1)
                               .pluck :customized_id || []
     backlog_issue_id_arr = Backlog.pluck :issue_id || []
     (backlog_issue_id_arr - issue_id_arr).each { |issue_id| Backlog.find_by(issue_id: issue_id).delete }
@@ -60,9 +60,7 @@ class Backlog < ActiveRecord::Base
   end
 
   def update_agile_position
-    backlog_ids = Backlog.eager_load(:issue)
-                         .where('issues.status_id' => self.issue.status_id)
-                         .order(:row_order)
+    backlog_ids = Backlog.order(:row_order)
                          .pluck(:issue_id)
     AgileData.where(issue_id: backlog_ids).each do |agile_data|
       agile_data.position = backlog_ids.index(agile_data.issue_id)
@@ -76,16 +74,17 @@ class Backlog < ActiveRecord::Base
     to_issue = Issue.where(status_id: self.issue.status_id)
                     .joins(:agile_data)
                     .find_by(agile_data: {position: position})
-    if to_issue.present?
-      # add in place
+    if to_issue.present? # Move in place
       row_order_position = backlog_issue_ids.index(to_issue.id)
-    elsif Issue.where(status_id: self.issue.status_id).count > 1
-      # add after
+    elsif Issue.where(status_id: self.issue.status_id).count > 1 # Move after
       to_issue = Issue.where(status_id: self.issue.status_id)
                       .joins(:agile_data)
                       .find_by(agile_data: {position: position - 1})
       row_order_position = backlog_issue_ids.index(to_issue.id) + 1
+    else
+      row_order_position = backlog_issue_ids.index(self.issue_id)
     end
+
     self.update_attribute :row_order_position, row_order_position
   end
 

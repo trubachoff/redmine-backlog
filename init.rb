@@ -2,7 +2,7 @@ require 'redmine'
 
 # This is the important line.
 # It requires the file in lib/backlog/hooks/controller_agile_boards_hook.rb
-require_dependency 'backlog/hooks/controller_agile_boards_hook'
+require_dependency 'backlog/hooks/controller_backlog_hook'
 
 Redmine::Plugin.register :redmine_backlog do
   name 'Redmine Backlog plugin'

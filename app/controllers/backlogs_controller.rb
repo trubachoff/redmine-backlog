@@ -94,15 +94,20 @@ class BacklogsController < ApplicationController
 
   def update_row_order
     @backlog = Backlog.find(backlog_params[:backlog_id])
+    # DIRTY Delete all no dispaly issues
+    Backlog.all.each { |e| e.delete unless Backlog.statuses_ids.map(&:to_i).include? e.issue.status_id }
+
     @backlog.update_attribute :row_order_position, backlog_params[:row_order]
-    @backlog.save
-    @backlog.update_agile_position
+    if @backlog.save
+      call_hook(:controller_backlog_row_order_update_after_save, { :params => params, :backlog => @backlog})
+    end
     render nothing: true # this is a POST action, updates sent via AJAX, no view rendered
   end
 
   private
-    def backlog_params
-      params.require(:backlog).permit(:backlog_id, :row_order)
-    end
+
+  def backlog_params
+    params.require(:backlog).permit(:backlog_id, :row_order)
+  end
 
 end
