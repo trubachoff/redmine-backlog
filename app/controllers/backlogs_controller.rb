@@ -48,7 +48,7 @@ class BacklogsController < ApplicationController
   end
 
   def show
-    logger.info "issue_id => '#{params[:id]}'"
+    logger.info "[Backlog] : issue_id => '#{params[:id]}'"
     @issue = Issue.find(params[:id])
 
     @journals = @issue.journals.includes(:user, :details).
@@ -95,22 +95,12 @@ class BacklogsController < ApplicationController
   def update_row_order
     @backlog = Backlog.find(backlog_params[:backlog_id])
     @backlog.update_attribute :row_order_position, backlog_params[:row_order]
-
-    call_hook :controller_row_order_update_before_save, { :params => backlog_params, :backlog => @backlog }
-
-    if @backlog.save
-      call_hook :controller_row_order_update_after_save, { :params => backlog_params, :backlog => @backlog }
-    end
+    @backlog.save
+    @backlog.update_agile_position
     render nothing: true # this is a POST action, updates sent via AJAX, no view rendered
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_backlog
-      @backlog = backlog.find(params[:id])
-    end
-
-    # Never trust parameters from the scary internet, only allow the white list through.
     def backlog_params
       params.require(:backlog).permit(:backlog_id, :row_order)
     end

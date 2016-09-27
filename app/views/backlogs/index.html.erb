@@ -56,7 +56,7 @@ $(function() {
         var item_id, position;
         item_id = ui.item.data('item-id');
         position = ui.item.index();
-        console.log(item_id, position);
+        console.log("row_order", item_id, position);
         return $.ajax({
           type: 'PUT',
           url: '/backlogs/update_row_order',
