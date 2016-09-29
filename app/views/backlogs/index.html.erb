@@ -38,6 +38,7 @@
 
 <%= context_menu issues_context_menu_path %>
 
+<% if User.current.allowed_to_globally? :update_backlog %>
 <%= javascript_tag do %>
 $(function() {
   if ($('#sortable').length > 0) {
@@ -71,7 +72,12 @@ $(function() {
       }
     });
   }
+});
+<% end %>
+<% end %>
 
+<%= javascript_tag do %>
+$(function() {
   $('tr.issue').on( 'click', function() {
     var id = $(this)[0].id.slice(6);
     console.info('sidebar issue_id=', id)

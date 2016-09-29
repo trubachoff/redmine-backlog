@@ -15,7 +15,7 @@
   <% end %>
   <% unless @issue.disabled_core_fields.include?('estimated_hours') %>
     <%= f.label l(:field_estimated_hours) %>:
-    <%= f.number_field(:estimated_hours, min: 0, max: 500, step: 0.5, id: 'estimated_hours') %>
+    <%= f.number_field :estimated_hours, min: 0, max: 500, step: 0.5, id: 'estimated_hours', disabled: !@issue.attributes_editable? %>
     <%= submit_tag l(:button_save), id: 'estimated_hours_submit', style: 'display:none' %>
   <% end %>
 <% end %>

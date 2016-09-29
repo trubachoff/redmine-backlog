@@ -1,0 +1,12 @@
+en:
+  label_implementer_hours: Время на исполнителя
+  label_sprint_estimated_hours: Запланированно в Sprint-е
+  label_backlog_view_statuses: Видимость в Sprint-е
+  error_backlog_estimated_time_exceeded: Превышенно запланированное время!
+  error_backlog_implementers_time_exceeded: "Превышение времени: %{implementer_hours_plan} для: %{implementers}"
+  planned: запланироанно
+  sprint: sprint
+  add_note: Комментировать
+  button_add_subtask: Добавить подзадачу
+  button_edit_issue: Редактировать премечание
+  button_close_sidebar: Закрыть

@@ -1,6 +1,7 @@
 class BacklogsController < ApplicationController
   unloadable
   before_filter :authorize_global, :only => [:index, :update_row_order]
+  before_filter :find_issue, :only => [:show, :history]
 
   helper :queries
   include QueriesHelper
@@ -50,7 +51,6 @@ class BacklogsController < ApplicationController
 
   def show
     logger.info "[Backlog] : issue_id => '#{params[:id]}'"
-    @issue = Issue.find(params[:id])
 
     @journals = @issue.journals.includes(:user, :details).
                     references(:user, :details).
@@ -77,8 +77,6 @@ class BacklogsController < ApplicationController
   end
 
   def history
-    @issue = Issue.find(params[:id])
-
     @journals = @issue.journals.includes(:user, :details).
                     references(:user, :details).
                     reorder(:created_on, :id).to_a
