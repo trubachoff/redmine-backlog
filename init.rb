@@ -22,7 +22,7 @@ Redmine::Plugin.register :redmine_backlog do
 
   project_module :backlog do
     permission :view_backlog, :backlogs => :index
-    permission :update_backlog, :backlogs => :update_row_order
+    permission :update_backlog, :backlogs => :update_row_order, :public => true
   end
 
 end
