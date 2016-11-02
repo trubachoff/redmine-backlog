@@ -2,6 +2,7 @@ class BacklogsController < ApplicationController
   unloadable
   before_filter :authorize_global, :only => [:index, :update_row_order]
   before_filter :find_issue, :only => [:show, :history]
+  before_filter :find_sprint
 
   helper :queries
   include QueriesHelper
@@ -16,6 +17,7 @@ class BacklogsController < ApplicationController
   helper :application
   helper :journals
   helper :backlogs
+  include BacklogsHelper
 
   rescue_from Query::StatementInvalid, :with => :query_statement_invalid
 

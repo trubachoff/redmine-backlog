@@ -5,8 +5,11 @@
 
 <% html_title(l(:label_backlog)) %>
 
-<h3>Sprint</h3>
-
+<h3><%= @current_sprint.name %> <span class="description"><%= "#{@current_sprint.description}" unless @current_sprint.description.empty? %></span></h3>
+<% if User.current.allowed_to? :update_sprint, @project, :global => true %>
+  <label><%= l(:label_sprint) %></label>
+  <%= select_tag 'settings[current_sprint]', options_for_select(Version.visible.collect{|c| [c.name, c.id]}, Setting.plugin_redmine_backlog['current_sprint']), :style => "width:150px" %>
+<% end %>
 <% if @backlogs.empty? %>
 <p class="nodata"><%= l(:label_no_data) %></p>
 <% else %>
@@ -20,11 +23,9 @@
 </div>
 
 <% html_title(@query.new_record? ? l(:label_issue_plural) : @query.name) %>
-
 <%= render_queries_buttons %>
 
 <% content_for :sidebar do %>
-
 <% end %>
 
 <%= error_messages_for 'query' %>

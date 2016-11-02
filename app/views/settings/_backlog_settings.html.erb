@@ -10,5 +10,10 @@
 
 <p>
   <label><%= l(:label_backlog_view_statuses) %></label>
-  <%= select_tag 'settings[backlog_view_statuses]', options_for_select(IssueStatus.all.collect{|c| [c.name, c.id]}, Setting.plugin_redmine_backlog['backlog_view_statuses'].to_a), :multiple => true, :include_blank => true, :size => 10, :style => "width:150px" %>
+  <%= select_tag 'settings[backlog_view_statuses]', options_for_select(IssueStatus.sorted.collect{|c| [c.name, c.id]}, Setting.plugin_redmine_backlog['backlog_view_statuses'].to_a), :multiple => true, :include_blank => true, :size => 10, :style => "width:150px" %>
+</p>
+
+<p>
+  <label><%= l(:label_current_sprint) %></label>
+  <%= select_tag 'settings[current_sprint]', options_for_select(Version.visible.collect{|c| [c.name, c.id]}, Setting.plugin_redmine_backlog['current_sprint']), :style => "width:150px" %>
 </p>

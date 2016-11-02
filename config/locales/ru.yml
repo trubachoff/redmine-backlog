@@ -1,7 +1,8 @@
 en:
   label_implementer_hours: Время на исполнителя
-  label_sprint_estimated_hours: Запланированно в Sprint-е
+  label_sprint_estimated_hours: Всего запланированно в Sprint-е
   label_backlog_view_statuses: Видимость в Sprint-е
+  label_sprint: Sprint
   error_backlog_estimated_time_exceeded: Превышенно запланированное время!
   error_backlog_implementers_time_exceeded: "Превышение времени: %{implementer_hours_plan} для: %{implementers}"
   planned: запланироанно

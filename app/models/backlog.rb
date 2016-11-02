@@ -9,16 +9,14 @@ class Backlog < ActiveRecord::Base
   include RankedModel
   ranks :row_order
 
-  cattr_accessor :statuses_ids, :implementer_hours_plan, :sprint_hours_plan, :cf_id
+  cattr_accessor :statuses_ids, :implementer_hours_plan, :sprint_hours_plan
 
-  @@statuses_ids = Setting.plugin_redmine_backlog['backlog_view_statuses'].to_a
+  @@statuses_ids = Setting.plugin_redmine_backlog['backlog_view_statuses'].to_a || []
   @@implementer_hours_plan = Setting.plugin_redmine_backlog['implementer_hours'].to_f || 0.0
   @@sprint_hours_plan = Setting.plugin_redmine_backlog['sprint_hours'].to_f || 0.0
-  @@cf_id = CustomField.find_by_name('In Sprint').id
 
   def self.fill_backlog
-    issue_id_arr = CustomValue.where(custom_field_id: @@cf_id, value: 1)
-                              .pluck :customized_id || []
+    issue_id_arr = Version.find(Setting.plugin_redmine_backlog['current_sprint']).fixed_issues.pluck :id || []
     backlog_issue_id_arr = Backlog.pluck :issue_id || []
     (backlog_issue_id_arr - issue_id_arr).each { |issue_id| Backlog.find_by(issue_id: issue_id).delete }
     (issue_id_arr - backlog_issue_id_arr).each { |issue_id| Backlog.create issue_id: issue_id }

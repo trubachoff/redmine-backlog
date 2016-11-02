@@ -23,8 +23,8 @@
 #sidebar {
   display: block;
   width: 320px;
-  -webkit-animation: slide-right 1s ease-out;
-  -moz-animation: slide-right 1s ease-out;
+  -webkit-animation: slide-right .5s ease-out;
+  -moz-animation: slide-right .5s ease-out;
 }
 
 /*----------------------------------------*\
@@ -38,6 +38,11 @@
 /*----------------------------------------*\
   F) PAGE SPECIFIC STYLES
 \*----------------------------------------*/
+h2 > .description,
+h3 > .description {
+    font-size: smaller;
+    font-weight: normal;
+}
 
 .version-overview table.progress {width:75%;}
 div#version-summary {float:none; width:100%; margin-left:0;}
