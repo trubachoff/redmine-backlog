@@ -1,0 +1,32 @@
+<% if @backlogs && @backlogs.any? %>
+<%= form_tag({}) do %>
+
+  <table class="list table backlog">
+    <thead><tr>
+      <th class="checkbox hide-when-print">
+        <%= check_box_tag 'check_all', '', false, :class => 'toggle-selection',
+              :title => "#{l(:button_check_all)}/#{l(:button_uncheck_all)}" %>
+      </th>
+      <% query.inline_columns.each do |column| %>
+      <%= content_tag('th', h(column.caption)) %>
+      <% end %>
+      <th></th>
+    </tr></thead>
+    <tbody>
+    <% for backlog in @backlogs %>
+    <tr id="issue-<%= backlog.id %>" class="item issue hascontextmenu <%= 'bg_error' if 1 < 0 %>" data-item-id="<%= backlog.id %>">
+      <td class="checkbox hide-when-print"><%= check_box_tag("ids[]", backlog.id, false, :id => nil) %></td>
+    <% @query.inline_columns.each do |column| %>
+      <td class="<%= column.css_classes %>"><%= column_content(column, backlog) %></td>
+    <% end %>
+      <td class="buttons">
+      <%= reorder_handle(backlog, :url => backlog_path(backlog), :param => 'backlog') %>
+    </td>
+    </tr>
+    <% end %>
+    </tbody>
+  </table>
+<% end %>
+<% else %>
+  <p class="nodata"><%= l(:label_no_data) %></p>
+<% end %>

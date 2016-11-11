@@ -9,7 +9,7 @@ module BacklogsHelper
           css << ' active' if query == @query
           link_to(query.name, url_params.merge(:query_id => query), :class => css)
         }.join("\n").html_safe,
-      :class => 'queries-buttons btn-group') + "\n"
+      :class => 'queries-buttons btn-group float-left') + "\n"
   end
 
   def render_queries_buttons
@@ -18,21 +18,45 @@ module BacklogsHelper
     out
   end
 
-  def find_sprint
-    @current_sprint = Version.find(Setting.plugin_redmine_backlog['current_sprint']);
+  def render_versions_buttons
+    url_params = params
+    content_tag('div',
+      Version.visible.where(:sharing => 'system')
+        .collect {|version|
+          css = 'btn btn-default'
+          css << ' active' if version == @current_version
+          link_to(version.name, url_params.merge(:version_id => version), :class => css)
+        }.join("\n").html_safe,
+      :class => 'queries-buttons btn-group float-left') + "\n"
   end
 
-  def version_select_tag(version, option={})
-    return "" if version.blank?
-    version_id =  version.is_a?(Version) && version.id || version
-    select_tag('version_id',
-      options_for_select(versions_collection_for_select, {:selected => version_id}),
-      :data => {:remote => true,
-                :method => 'get',
-                :url => load_agile_versions_path(:version_type => option[:version_type],
-                                                 :other_version_id => other_version_id,
-                                                 :project_id => @project)}) +
-    content_tag(:span, '', :class => "hours header-hours #{option[:version_type]}-hours")
+  def find_version
+    if params[:version_id]
+      @current_version = Version.visible.where(sharing: 'system').find(params[:version_id])
+    else
+      @current_version = Version.find(Setting.plugin_redmine_backlog['default_version'])
+    end
+  end
+
+  def render_backlog_query_totals(query)
+    return unless query.totalable_columns.present?
+    totals = query.totalable_columns.map do |column|
+      backlog_total_tag(column, query.total_for(column))
+    end
+    content_tag('p', totals.join(" ").html_safe, :class => "query-totals")
+  end
+
+  def backlog_total_tag(column, value)
+    label = content_tag('span', "#{column.caption}:")
+    tag_class = 'red' if (Backlog.sprint_hours_plan - value) < 0
+    value = content_tag('span', format_object(value), :class => "value #{tag_class}")
+    content_tag('span', label + " " + value, :class => "total-for-#{column.name.to_s.dasherize}")
   end
 
 end
+
+
+# <div class="query-totals">
+#   <span class="total-for-estimated-hours"><span><%=" #{l :field_estimated_hours}: #{l :planned}"%></span> <span class="value"><%= @sprint_hours_plan %></span>, <%= l :sprint %> <span class="value"><%= @estimated_hours %></span> (<span class="value <%= 1 < 0 ? 'red' : 'green' %>"><%="#{1}" %></span>)</span>
+#   <span class="total-for-spent-hours"><span><%=l(:label_spent_time)%>:</span> <span class="value"><%= @spent_hours %></span></span>
+# </div>

@@ -165,6 +165,23 @@ h4 img.gravatar {
 .queries-buttons {
   margin: 1em 0;
 }
+
+.query-totals {
+  float: right;
+}
+
+h2 .count {
+  font-weight: bold;
+  position: relative;
+  top: -.8em;
+  color: #fff;
+  font-size: 11px;
+  background: #9DB9D5;
+  padding: 1px 6px;
+  border-radius: 3px;
+  margin-left: 4px;
+}
+
 /*----------------------------------------*\
   G) FORMS
 \*----------------------------------------*/

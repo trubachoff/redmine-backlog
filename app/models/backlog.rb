@@ -2,31 +2,84 @@ class Backlog < ActiveRecord::Base
   unloadable
 
   belongs_to :issue
+  has_one :fixed_version, through: :issue
   has_one :agile_data, through: :issue
   has_one :status, through: :issue
   has_many :time_entries, through: :issue
 
-  include RankedModel
-  ranks :row_order
+  scope :sorted, lambda { order(:position) }
 
-  cattr_accessor :statuses_ids, :implementer_hours_plan, :sprint_hours_plan
+  before_save :set_default_position
+  after_save :update_position
+  after_destroy :remove_position
 
-  @@statuses_ids = Setting.plugin_redmine_backlog['backlog_view_statuses'].to_a || []
-  @@implementer_hours_plan = Setting.plugin_redmine_backlog['implementer_hours'].to_f || 0.0
-  @@sprint_hours_plan = Setting.plugin_redmine_backlog['sprint_hours'].to_f || 0.0
+  def set_default_position
+    if position.nil?
+      self.position = Backlog.joins(:issue)
+                             .where('issues.fixed_version' => self.fixed_version)
+                             .maximum(:position).to_i + (new_record? ? 1 : 0)
+    end
+  end
 
-  def self.fill_backlog
-    issue_id_arr = Version.find(Setting.plugin_redmine_backlog['current_sprint']).fixed_issues.pluck :id || []
-    backlog_issue_id_arr = Backlog.pluck :issue_id || []
-    (backlog_issue_id_arr - issue_id_arr).each { |issue_id| Backlog.find_by(issue_id: issue_id).delete }
-    (issue_id_arr - backlog_issue_id_arr).each { |issue_id| Backlog.create issue_id: issue_id }
+  def update_position
+    if new_record?
+      insert_position
+    else
+      remove_position
+      insert_position
+    end
+  end
+
+  def insert_position
+    Backlog.joins(:issue)
+           .where('issues.fixed_version' => self.fixed_version)
+           .where('position >= ? AND backlogs.id <> ?', position, id).update_all('position = position + 1')
+  end
+
+  def remove_position
+    Backlog.joins(:issue)
+           .where('issues.fixed_version' => self.fixed_version)
+           .where('position >= ? AND backlogs.id <> ?', position_was, id).update_all('position = position - 1')
+  end
+
+  def self.statuses_ids
+    @statuses_ids ||= Setting.plugin_redmine_backlog['backlog_view_statuses'].to_a || []
+  end
+
+  def self.implementer_hours_plan
+    @implementer_hours_plan ||= Setting.plugin_redmine_backlog['implementer_hours'].to_f || 0.0
+  end
+
+  def self.sprint_hours_plan
+    @sprint_hours_plan ||= Setting.plugin_redmine_backlog['sprint_hours'].to_f || 0.0
+  end
+
+  def self.fill_backlog(current_version)
+    Backlog.joins(:issue)
+           .where('issues.fixed_version_id = ? OR issues.status_id NOT IN (?)', nil, Backlog.statuses_ids.map(&:to_i)).delete_all
+    version_issue_ids = current_version.fixed_issues
+                                       .where(:status_id => Backlog.statuses_ids)
+                                       .order(id: :desc)
+                                       .pluck(:id) || []
+    backlog_issue_ids = Backlog.joins(:issue)
+                               .where('issues.fixed_version' => current_version)
+                               .pluck(:issue_id) || []
+    (version_issue_ids - backlog_issue_ids).each { |issue_id| Backlog.create issue_id: issue_id }
+  end
+
+  def self.reset_positions(current_version)
+    i = 0
+    Backlog.joins(:issue)
+           .where('issues.fixed_version' => current_version)
+           .order(:position)
+           .each { |b| b.update_attribute :position, (i += 1) }
   end
 
   def self.sort_backlog_by_agile_data
     i = 0
     Backlog.joins(:issue, :agile_data)
            .order('agile_data.position, backlogs.row_order')
-           .each { |b| b.update_attribute :row_order_position, (i += 1) }
+           .each { |b| b.update_attribute :position, (i += 1) }
   end
 
   def self.update_all_agile_positions
@@ -58,7 +111,7 @@ class Backlog < ActiveRecord::Base
   end
 
   def update_agile_position
-    backlog_ids = Backlog.order(:row_order)
+    backlog_ids = Backlog.order(:position)
                          .pluck(:issue_id)
     AgileData.where(issue_id: backlog_ids).each do |agile_data|
       agile_data.position = backlog_ids.index(agile_data.issue_id)
@@ -87,15 +140,15 @@ class Backlog < ActiveRecord::Base
   end
 
   def self.estimated_hours
-    Backlog.joins(:issue).where('issues.status_id' => @@statuses_ids).sum(:estimated_hours).to_f || 0.0
+    Backlog.joins(:issue).where('issues.status_id' => @statuses_ids).sum(:estimated_hours).to_f || 0.0
   end
 
   def self.spent_hours
     Backlog.joins(:time_entries).sum(:hours).to_f || 0.0
   end
 
-  def self.query_backlog
-    Backlog.joins(:issue).where('issues.status_id' => @@statuses_ids).rank(:row_order).all
+  def self.query_backlog(current_version)
+     Backlog.where :issue_id => current_version.fixed_issues.pluck(:id)
   end
 
   def assigned_to_id
@@ -111,7 +164,7 @@ class Backlog < ActiveRecord::Base
   end
 
   def implementer_remain
-    @@implementer_hours_plan - self.implementer_hours
+    @implementer_hours_plan - self.implementer_hours
   end
 
   def self.implementers_owerflow

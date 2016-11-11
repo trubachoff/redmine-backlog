@@ -6,7 +6,6 @@ resources :backlogs do
   get '/backlogs/:id', :to => 'backlogs#show'
 
   collection do
-    put :update_row_order
     get :history
   end
 

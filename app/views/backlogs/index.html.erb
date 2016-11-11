@@ -1,34 +1,24 @@
-<% content_for :header_tags do %>
-  <%= javascript_include_tag 'backlog', :plugin => 'redmine_backlog' %>
-  <%= stylesheet_link_tag 'backlog.css', :plugin => 'redmine_backlog', :media => 'screen' %>
-<% end %>
-
 <% html_title(l(:label_backlog)) %>
-
-<h3><%= @current_sprint.name %> <span class="description"><%= "#{@current_sprint.description}" unless @current_sprint.description.empty? %></span></h3>
-<% if User.current.allowed_to? :update_sprint, @project, :global => true %>
-  <label><%= l(:label_sprint) %></label>
-  <%= select_tag 'settings[current_sprint]', options_for_select(Version.visible.collect{|c| [c.name, c.id]}, Setting.plugin_redmine_backlog['current_sprint']), :style => "width:150px" %>
-<% end %>
-<% if @backlogs.empty? %>
-<p class="nodata"><%= l(:label_no_data) %></p>
-<% else %>
-<%= render :partial => 'sprint_list', :locals => {:backlogs => @backlogs, :query => @query} %>
-<% end %>
 
 <div class="contextual">
   <% if User.current.allowed_to?(:add_issues, @project, :global => true) && (@project.nil? || Issue.allowed_target_trackers(@project).any?) %>
     <%= link_to l(:label_issue_new), _new_project_issue_path(@project), :class => 'icon icon-add new-issue' %>
   <% end %>
 </div>
+<h2><%= @current_version.name %><span class="count"><%= @backlog_query.issue_count %></span> <span class="description"><%= "#{@current_version.description}" unless @current_version.description.empty? %></span></h2>
 
-<% html_title(@query.new_record? ? l(:label_issue_plural) : @query.name) %>
-<%= render_queries_buttons %>
-
-<% content_for :sidebar do %>
+<%= render_versions_buttons %>
+<% if @backlogs.empty? && @backlog_query.valid? %>
+<p class="nodata"><%= l(:label_no_data) %></p>
+<% else %>
+<%= render_backlog_query_totals(@backlog_query) %>
+<%= render :partial => 'backlog_list', :locals => {:backlogs => @backlogs, :query => @query} %>
 <% end %>
 
+<% html_title(@query.new_record? ? l(:label_issue_plural) : @query.name) %>
 <%= error_messages_for 'query' %>
+
+<%= render_queries_buttons %>
 <% if @issues.empty? && @query.valid? %>
 <p class="nodata"><%= l(:label_no_data) %></p>
 <% else %>
@@ -37,43 +27,19 @@
 <span class="pagination"><%= pagination_links_full @issue_pages, @issue_count %></span>
 <% end %>
 
+<% content_for :header_tags do %>
+  <%= javascript_include_tag 'backlog', :plugin => 'redmine_backlog' %>
+  <%= stylesheet_link_tag 'backlog.css', :plugin => 'redmine_backlog', :media => 'screen' %>
+<% end %>
+
+<% content_for :sidebar do %>
+<% end %>
+
 <%= context_menu issues_context_menu_path %>
 
 <% if User.current.allowed_to_globally? :update_backlog %>
 <%= javascript_tag do %>
-$(function() {
-  if ($('#sortable').length > 0) {
-    $('#sortable').sortable({
-      axis: 'y',
-      items: '.item',
-      cursor: 'move',
-      sort: function(e, ui) {
-        return ui.item.addClass('active-item-shadow');
-      },
-      stop: function(e, ui) {
-        ui.item.removeClass('active-item-shadow');
-        return ui.item.children('td').effect('highlight', {}, 1000);
-      },
-      update: function(e, ui) {
-        var item_id, position;
-        item_id = ui.item.data('item-id');
-        position = ui.item.index();
-        console.log("row_order", item_id, position);
-        return $.ajax({
-          type: 'PUT',
-          url: '/backlogs/update_row_order',
-          dataType: 'json',
-          data: {
-            backlog: {
-              backlog_id: item_id,
-              row_order: position
-            }
-          }
-        });
-      }
-    });
-  }
-});
+  $(function() { $("table.backlog tbody").positionedItems(); });
 <% end %>
 <% end %>
 

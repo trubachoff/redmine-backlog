@@ -1,8 +1,8 @@
 class BacklogsController < ApplicationController
   unloadable
-  before_filter :authorize_global, :only => [:index, :update_row_order]
-  before_filter :find_issue, :only => [:show, :history]
-  before_filter :find_sprint
+  before_filter :authorize_global, :only => [:index]
+  before_filter :find_issue, :only => [:show, :update, :history]
+  before_filter :find_version, :only => [:index, :update]
 
   helper :queries
   include QueriesHelper
@@ -19,16 +19,31 @@ class BacklogsController < ApplicationController
   helper :backlogs
   include BacklogsHelper
 
-  rescue_from Query::StatementInvalid, :with => :query_statement_invalid
+  # rescue_from Query::StatementInvalid, :with => :query_statement_invalid
 
   def index
-    Backlog::fill_backlog
-    @backlogs = Backlog::query_backlog
+    Backlog.fill_backlog @current_version
 
-    retrieve_query
+    # query for fixed_version
+    @backlog_query = IssueQuery.new :name => '_', :visibility => IssueQuery::VISIBILITY_PUBLIC
+    @backlog_query.add_filter 'fixed_version_id', '=', [@current_version]
+    sort_init([['backlogs.position']])
+    sort_update(@backlog_query.sortable_columns)
+    @backlog_query.sort_criteria = sort_criteria.to_a
+    @backlog_query.totalable_names = [:spent_hours, :estimated_hours]
+    # binding.pry
+    if @backlog_query.valid?
+      @backlogs = @backlog_query.issues(:include => [:fixed_version],
+                                        :order => sort_clause)
+    end
+
+    # query for other issues
+    retrieve_query(IssueQuery, false)
     sort_init(@query.sort_criteria.empty? ? [['id', 'desc']] : @query.sort_criteria)
     sort_update(@query.sortable_columns)
     @query.sort_criteria = sort_criteria.to_a
+    @query.add_filter('fixed_version_id', '!', [@current_version])
+    @query.group_by = :fixed_version
 
     if @query.valid?
       @limit = per_page_option
@@ -41,12 +56,6 @@ class BacklogsController < ApplicationController
                               :limit => @limit)
       @issue_count_by_group = @query.issue_count_by_group
     end
-
-    flash.now[:implementer_error] = l( :error_backlog_implementers_time_exceeded, { implementer_hours_plan: Backlog::implementer_hours_plan, implementers: Backlog::implementers_owerflow.map {|e| "#{e.issue.assigned_to.name} #{e.implementer_hours.abs}(#{e.implementer_remain.abs})"}.uniq.join(', ') } ) if Backlog::is_implementers_owerflow?
-
-    @estimated_hours = Backlog::estimated_hours
-    @spent_hours = Backlog::spent_hours
-    @sprint_hours_plan = Backlog::sprint_hours_plan
 
     render :template => 'backlogs/index', layout: !request.xhr?
   end
@@ -93,22 +102,30 @@ class BacklogsController < ApplicationController
     end
   end
 
-  def update_row_order
-    @backlog = Backlog.find(backlog_params[:backlog_id])
-    # DIRTY Delete all no dispaly issues
-    Backlog.all.each { |e| e.delete unless Backlog.statuses_ids.map(&:to_i).include? e.issue.status_id }
+  def update
+    @backlog = Backlog.find_by_issue_id(@issue.id) || Backlog.create(:issue_id => @issue)
 
-    @backlog.update_attribute :row_order_position, backlog_params[:row_order]
-    if @backlog.save
-      call_hook(:controller_backlog_row_order_update_after_save, { :params => params, :backlog => @backlog})
+    if @backlog.update_attribute :position, backlog_params['position']
+      respond_to do |format|
+        format.html {
+          flash[:notice] = l(:notice_successful_update)
+          redirect_to backlog_path
+        }
+        format.js { head 200 }
+      end
     end
-    render nothing: true # this is a POST action, updates sent via AJAX, no view rendered
   end
 
   private
 
+  def find_issue
+    @issue = Issue.find(params[:id])
+  rescue ActiveRecord::RecordNotFound
+    render_404
+  end
+
   def backlog_params
-    params.require(:backlog).permit(:backlog_id, :row_order)
+    params.require(:backlog).permit(:position)
   end
 
 end

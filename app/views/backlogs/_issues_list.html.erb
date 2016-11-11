@@ -1,6 +1,5 @@
 <%= form_tag({}) do -%>
 <%= hidden_field_tag 'back_url', url_for(params), :id => nil %>
-<div class="autoscroll">
 <table class="list issues <%= sort_css_classes %>">
   <thead>
     <tr>
@@ -40,5 +39,4 @@
   <% end %>
   </tbody>
 </table>
-</div>
 <% end %>

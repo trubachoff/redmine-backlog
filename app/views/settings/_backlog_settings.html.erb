@@ -14,6 +14,6 @@
 </p>
 
 <p>
-  <label><%= l(:label_current_sprint) %></label>
-  <%= select_tag 'settings[current_sprint]', options_for_select(Version.visible.collect{|c| [c.name, c.id]}, Setting.plugin_redmine_backlog['current_sprint']), :style => "width:150px" %>
+  <label><%= l(:label_default_version) %></label>
+  <%= select_tag 'settings[default_version]', options_for_select(Version.where(:sharing => 'system').collect{|c| [c.name, c.id]}, Setting.plugin_redmine_backlog['default_version']), :style => "width:150px" %>
 </p>
