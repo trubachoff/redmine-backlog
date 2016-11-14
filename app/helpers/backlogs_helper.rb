@@ -14,7 +14,7 @@ module BacklogsHelper
 
   def render_queries_buttons
     out = ''.html_safe
-    out << queries_links(l(:label_query_plural), sidebar_queries(IssueQuery, @project).reject(&:is_private?))
+    out << queries_links(l(:label_query_plural), sidebar_queries.reject(&:is_private?))
     out
   end
 
