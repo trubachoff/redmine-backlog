@@ -52,7 +52,6 @@ class BacklogsController < ApplicationController
                               :limit => @limit)
       @issue_count_by_group = @query.issue_count_by_group
     end
-    binding.pry
 
     render :template => 'backlogs/index', layout: !request.xhr?
   end
