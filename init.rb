@@ -12,7 +12,7 @@ Redmine::Plugin.register :redmine_backlog do
   name 'Redmine Backlog plugin'
   author 'trubachoff'
   description 'This is a plugin for Redmine'
-  version '0.3.1'
+  version '0.3.2'
   author_url 'mailto:trubachoff@gmail.com'
   requires_redmine_plugin :redmine_agile, :version_or_higher => '1.4.0'
 

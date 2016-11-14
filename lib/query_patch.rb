@@ -9,7 +9,7 @@ module QueryPatch
     # Same as typing in the class
     base.class_eval do
       unloadable # Send unloadable so it will not be unloaded in development
-      base.add_available_column(QueryColumn.new(:position, :sortable => 'position'))
+      base.add_available_column(QueryColumn.new(:position, :sortable => 'backlog.position'))
       alias_method :redmine_available_filters, :available_filters
       alias_method :available_filters, :backlog_available_filters
     end

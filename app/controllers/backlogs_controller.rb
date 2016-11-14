@@ -27,19 +27,15 @@ class BacklogsController < ApplicationController
     # query for fixed_version
     @backlog_query = IssueQuery.new :name => '_', :visibility => IssueQuery::VISIBILITY_PUBLIC
     @backlog_query.add_filter 'fixed_version_id', '=', [@current_version]
-    sort_init([['backlogs.position']])
-    sort_update(@backlog_query.sortable_columns)
-    @backlog_query.sort_criteria = sort_criteria.to_a
     @backlog_query.totalable_names = [:spent_hours, :estimated_hours]
-    # binding.pry
+    @backlog_query.sort_criteria = [['backlog.position']]
     if @backlog_query.valid?
-      @backlogs = @backlog_query.issues(:include => [:fixed_version],
-                                        :order => sort_clause)
+      @backlogs = @backlog_query.issues(:include => [:assigned_to, :tracker, :priority, :category, :fixed_version, :backlog], :order => 'backlogs.position ASC')
     end
 
     # query for other issues
     retrieve_query(IssueQuery, false)
-    sort_init(@query.sort_criteria.empty? ? [['id', 'desc']] : @query.sort_criteria)
+    sort_init(@query.sort_criteria.empty? ? [['position', 'id', 'desc']] : @query.sort_criteria)
     sort_update(@query.sortable_columns)
     @query.sort_criteria = sort_criteria.to_a
     @query.add_filter('fixed_version_id', '!', [@current_version])

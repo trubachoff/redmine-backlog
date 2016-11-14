@@ -54,9 +54,3 @@ module BacklogsHelper
   end
 
 end
-
-
-# <div class="query-totals">
-#   <span class="total-for-estimated-hours"><span><%=" #{l :field_estimated_hours}: #{l :planned}"%></span> <span class="value"><%= @sprint_hours_plan %></span>, <%= l :sprint %> <span class="value"><%= @estimated_hours %></span> (<span class="value <%= 1 < 0 ? 'red' : 'green' %>"><%="#{1}" %></span>)</span>
-#   <span class="total-for-spent-hours"><span><%=l(:label_spent_time)%>:</span> <span class="value"><%= @spent_hours %></span></span>
-# </div>
