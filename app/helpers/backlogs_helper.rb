@@ -21,12 +21,13 @@ module BacklogsHelper
   def render_versions_buttons
     url_params = params
     content_tag('div',
-      Version.visible.where(:sharing => 'system')
-        .collect {|version|
-          css = 'btn btn-default'
-          css << ' active' if version == @current_version
-          link_to(version.name, url_params.merge(:version_id => version), :class => css)
-        }.join("\n").html_safe,
+      Version.open.visible
+             .where(:sharing => 'system')
+             .collect {|version|
+               css = 'btn btn-default'
+               css << ' active' if version == @current_version
+               link_to(version.name, url_params.merge(:version_id => version), :class => css)
+             }.join("\n").html_safe,
       :class => 'queries-buttons btn-group float-left') + "\n"
   end
 
