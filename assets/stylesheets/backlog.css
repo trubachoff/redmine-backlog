@@ -168,6 +168,7 @@ h4 img.gravatar {
 
 .query-totals {
   margin-top: 1em;
+  float: right;
 }
 
 h2 .count {

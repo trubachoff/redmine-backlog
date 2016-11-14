@@ -9,7 +9,7 @@ module BacklogsHelper
           css << ' active' if query == @query
           link_to(query.name, url_params.merge(:query_id => query), :class => css)
         }.join("\n").html_safe,
-      :class => 'queries-buttons btn-group float-left') + "\n"
+      :class => 'queries-buttons btn-group') + "\n"
   end
 
   def render_queries_buttons
@@ -28,7 +28,7 @@ module BacklogsHelper
                css << ' active' if version == @current_version
                link_to(version.name, url_params.merge(:version_id => version), :class => css)
              }.join("\n").html_safe,
-      :class => 'queries-buttons btn-group float-left') + "\n"
+      :class => 'queries-buttons btn-group') + "\n"
   end
 
   def find_version
