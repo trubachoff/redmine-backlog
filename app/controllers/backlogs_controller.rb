@@ -25,10 +25,9 @@ class BacklogsController < ApplicationController
     Backlog.fill_backlog @current_version
 
     # query for fixed_version
-    @backlog_query = IssueQuery.new :name => '_', :visibility => IssueQuery::VISIBILITY_PUBLIC
+    @backlog_query = IssueQuery.new :name => 'backlog', :visibility => IssueQuery::VISIBILITY_PUBLIC
     @backlog_query.add_filter 'fixed_version_id', '=', [@current_version.id]
     @backlog_query.totalable_names = [:spent_hours, :estimated_hours]
-    @backlog_query.sort_criteria = [['backlog.position']]
     if @backlog_query.valid?
       @backlogs = @backlog_query.issues(:include => [:assigned_to, :tracker, :priority, :category, :fixed_version, :backlog], :order => 'backlogs.position ASC')
     end
@@ -39,7 +38,6 @@ class BacklogsController < ApplicationController
     sort_update(@query.sortable_columns)
     @query.sort_criteria = sort_criteria.to_a
     @query.add_filter('fixed_version_id', '!', [@current_version.id])
-    @query.group_by = :fixed_version
 
     if @query.valid?
       @limit = per_page_option

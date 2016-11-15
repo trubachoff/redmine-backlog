@@ -8,6 +8,7 @@
 <h2><%= @current_version.name %><span class="count"><%= @backlog_query.issue_count %></span> <span class="description"><%= "#{@current_version.description}" unless @current_version.description.empty? %></span></h2>
 
 <%= render_versions_buttons %>
+
 <% if @backlogs.empty? && @backlog_query.valid? %>
 <p class="nodata"><%= l(:label_no_data) %></p>
 <% else %>

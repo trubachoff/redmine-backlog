@@ -21,8 +21,9 @@ module BacklogsHelper
   def render_versions_buttons
     url_params = params
     content_tag('div',
-      Version.open.visible
+      Version.visible
              .where(:sharing => 'system')
+             .where.not(:status => 'closed')
              .collect {|version|
                css = 'btn btn-default'
                css << ' active' if version == @current_version
@@ -33,7 +34,10 @@ module BacklogsHelper
 
   def find_version
     if params[:version_id]
-      @current_version = Version.visible.where(sharing: 'system').find(params[:version_id])
+      @current_version = Version.visible
+                                .where(sharing: 'system')
+                                .where.not(:status => 'closed')
+                                .find(params[:version_id])
     else
       @current_version = Version.find(Setting.plugin_redmine_backlog['default_version'])
     end

@@ -19,9 +19,11 @@
     <% @query.inline_columns.each do |column| %>
       <td class="<%= column.css_classes %>"><%= column_content(column, backlog) %></td>
     <% end %>
+    <% if User.current.allowed_to_globally? :update_backlog %>
       <td class="buttons">
       <%= reorder_handle(backlog, :url => backlog_path(backlog), :param => 'backlog') %>
-    </td>
+      </td>
+    <% end %>
     </tr>
     <% end %>
     </tbody>
