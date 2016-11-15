@@ -27,14 +27,12 @@ module BacklogsHelper
   end
 
   def find_version
-    if params[:version_id]
-      @current_version = Version.visible
-                                .where(sharing: 'system')
-                                .where.not(:status => 'closed')
-                                .find(params[:version_id])
-    else
-      @current_version = Version.find(Setting.plugin_redmine_backlog['default_version'])
-    end
+    @current_version = Version.visible
+                              .where(sharing: 'system')
+                              .where.not(status: 'closed')
+                              .find_by(id: params[:version_id]) ||
+                       Version.find_by(id: Setting.plugin_redmine_backlog['default_version']) ||
+                       Version.visible.where.not(status: 'closed').first
   end
 
   def render_backlog_query_totals(query)
