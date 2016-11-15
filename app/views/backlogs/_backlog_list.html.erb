@@ -10,7 +10,7 @@
       <% query.inline_columns.each do |column| %>
       <%= content_tag('th', h(column.caption)) %>
       <% end %>
-      <th></th>
+      <%= '<th></th>'.html_safe if User.current.allowed_to_globally? :update_backlog %>
     </tr></thead>
     <tbody>
     <% for backlog in @backlogs %>
