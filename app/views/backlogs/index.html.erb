@@ -1,4 +1,4 @@
-<% html_title(l(:label_backlog)) %>
+<% html_title l(:label_backlog) %>
 
 <div class="contextual">
   <% if User.current.allowed_to?(:add_issues, @project, :global => true) && (@project.nil? || Issue.allowed_target_trackers(@project).any?) %>

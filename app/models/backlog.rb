@@ -7,10 +7,12 @@ class Backlog < ActiveRecord::Base
   has_one :status, through: :issue
   has_many :time_entries, through: :issue
 
+  validates_presence_of :issue_id
+
   scope :sorted, lambda { order(:position) }
 
   before_save :set_default_position
-  after_save :update_position
+  after_save :update_position, :update_agile
   after_destroy :remove_position
 
   def set_default_position
@@ -27,6 +29,18 @@ class Backlog < ActiveRecord::Base
     else
       remove_position
       insert_position
+    end
+  end
+
+  def update_agile
+    i = 0
+    Backlog.sorted_by_status(fixed_version, status).each do |backlog|
+      if backlog.agile_data
+        backlog.agile_data.update(:position => i)
+      else
+        AgileData.create(:issue => backlog.issue, :position => i)
+      end
+      i += 1
     end
   end
 
@@ -63,6 +77,13 @@ class Backlog < ActiveRecord::Base
            .where('issues.fixed_version' => current_version)
            .order(:position)
            .each { |b| b.update_attribute :position, (i += 1) }
+  end
+
+  def self.sorted_by_status(version, status)
+    Backlog.joins(:issue, :status)
+           .where('issues.fixed_version' => version)
+           .where('issues.status' => status)
+           .order(:position)
   end
 
   def self.statuses_ids

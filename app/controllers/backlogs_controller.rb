@@ -19,7 +19,7 @@ class BacklogsController < ApplicationController
   helper :backlogs
   include BacklogsHelper
 
-  # rescue_from Query::StatementInvalid, :with => :query_statement_invalid
+  rescue_from Query::StatementInvalid, :with => :query_statement_invalid
 
   def index
     Backlog.fill_backlog @current_version
