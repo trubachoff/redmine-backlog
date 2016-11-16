@@ -38,12 +38,6 @@
 /*----------------------------------------*\
   F) PAGE SPECIFIC STYLES
 \*----------------------------------------*/
-h2 > .description,
-h3 > .description {
-    font-size: smaller;
-    font-weight: normal;
-}
-
 .version-overview table.progress {width:75%;}
 div#version-summary {float:none; width:100%; margin-left:0;}
 body.controller-versions.action-show div#roadmap .related-issues {width:100%;}
@@ -125,15 +119,15 @@ img.gravatar {
   float: left;
 }
 
-.author {
+#sidebar .author {
   font-size: 10px;
 }
 
-.details {
+#sidebar .details {
   margin-bottom: 1em;
 }
 
-.subject h3 {
+#sidebar .subject h3 {
   margin: 0 !important;
 }
 
@@ -171,6 +165,10 @@ h4 img.gravatar {
   float: right;
 }
 
+h2 {
+  margin: 0;
+}
+
 h2 .count {
   font-weight: bold;
   position: relative;
@@ -183,6 +181,11 @@ h2 .count {
   margin-left: 4px;
 }
 
+h2 > .description,
+h3 > .description {
+    font-size: smaller;
+    font-weight: normal;
+}
 /*----------------------------------------*\
   G) FORMS
 \*----------------------------------------*/
