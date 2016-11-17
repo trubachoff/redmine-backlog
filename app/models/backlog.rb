@@ -19,7 +19,7 @@ class Backlog < ActiveRecord::Base
     if position.nil?
       self.position = Backlog.joins(:issue)
                              .where('issues.fixed_version' => self.fixed_version)
-                             .maximum(:position).to_i
+                             .maximum(:position).to_i + (new_record? ? 1 : 0)
     end
   end
 
@@ -60,7 +60,8 @@ class Backlog < ActiveRecord::Base
 
   def self.fill_backlog(current_version)
     Backlog.joins(:issue)
-           .where('issues.fixed_version_id = ? OR issues.status_id NOT IN (?)', nil, Backlog.statuses_ids.map(&:to_i)).delete_all
+           .where('issues.fixed_version_id = ? OR issues.status_id NOT IN (?)', nil, Backlog.statuses_ids.map(&:to_i))
+           .destroy_all
     version_issue_ids = current_version.fixed_issues
                                        .where(:status_id => Backlog.statuses_ids)
                                        .order(id: :desc)
