@@ -98,8 +98,9 @@ class BacklogsController < ApplicationController
 
   def update
     @backlog = Backlog.find_by_issue_id(@issue.id) || Backlog.create(:issue_id => @issue)
+    position = backlog_params['position'].to_i - 1 if backlog_params['position']
 
-    if @backlog.update_attribute :position, backlog_params['position']
+    if @backlog.update_attribute :position, position
       respond_to do |format|
         format.html {
           flash[:notice] = l(:notice_successful_update)

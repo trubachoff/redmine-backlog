@@ -19,7 +19,7 @@ class Backlog < ActiveRecord::Base
     if position.nil?
       self.position = Backlog.joins(:issue)
                              .where('issues.fixed_version' => self.fixed_version)
-                             .maximum(:position).to_i + (new_record? ? 1 : 0)
+                             .maximum(:position).to_i
     end
   end
 
@@ -96,10 +96,6 @@ class Backlog < ActiveRecord::Base
 
   def self.sprint_hours_plan
     @sprint_hours_plan ||= Setting.plugin_redmine_backlog['sprint_hours'].to_f || 0.0
-  end
-
-  def self.fill_by_agile
-
   end
 
 end
