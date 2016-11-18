@@ -40,7 +40,7 @@
 
 <% if User.current.allowed_to_globally? :update_backlog %>
 <%= javascript_tag do %>
-  $(function() { $("table.backlog tbody").positionedItems(); });
+  $(function() { $("table.backlog tbody").positionedItems(undefined, {firstPosition: 0}); });
 <% end %>
 <% end %>
 

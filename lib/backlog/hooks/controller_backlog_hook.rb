@@ -4,11 +4,11 @@ module RedmineAgile
     class ControllerBacklogHook < Redmine::Hook::ViewListener
 
       def controller_issues_bulk_edit_before_save(context={})
-        destroy_backlog context[:issue]
+        update_backlog context[:issue]
       end
 
       def controller_issues_edit_before_save(context={})
-        destroy_backlog context[:issue]
+        update_backlog context[:issue]
       end
 
       def controller_agile_boards_update_after_save(context={})
@@ -29,27 +29,32 @@ module RedmineAgile
                             .joins(:issue)
                             .where('issues.fixed_version' => issue.fixed_version)
                             .pluck(:issue_id).index(issue_id)
-          position += 1 # increase because index from 0 position from 1
           position += 1 if is_down
-          if position && issue.position
-            position += -1 if position > issue.position # if move down in backlog
+
+          if position && issue.backlog.position
+            position += -1 if position > issue.backlog.position # if move down in backlog
             backlog.update(:position => position)
-          elsif position || issue.position
-            position = issue.position if issue.position
+          elsif position || issue.backlog.position
+            position = issue.backlog.position if issue.backlog.position
             Backlog.create(:issue => issue, :position => position)
           else
             Backlog.create(:issue => issue)
           end
-        elsif
+
+        elsif backlog
           backlog.destroy
         end
       end
 
       private
 
-      def destroy_backlog(issue)
-        if issue && backlog = Backlog.find_by(issue_id: issue.id)
-          backlog.destroy if issue.fixed_version_id_changed?
+      def update_backlog(issue)
+        if issue.fixed_version_id_changed?
+          backlog.destroy if backlog = Backlog.find_by(issue_id: issue.id)
+          Backlog.create(:issue => issue) if issue.fixed_version_id.in?(Version.visible
+                                                                               .where(sharing: 'system')
+                                                                               .where.not(status: 'closed')
+                                                                               .pluck(:id))
         end
       end
 

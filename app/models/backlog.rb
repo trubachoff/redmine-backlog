@@ -16,10 +16,16 @@ class Backlog < ActiveRecord::Base
   after_destroy :remove_position
 
   def set_default_position
-    if position.nil?
-      self.position = Backlog.joins(:issue)
-                             .where('issues.fixed_version' => self.fixed_version)
-                             .maximum(:position).to_i + (new_record? ? 1 : 0)
+    if self.position.nil?
+      if Backlog.joins(:issue)
+                .where('issues.fixed_version' => issue.fixed_version)
+                .count.zero?
+        self.position = 0
+      else
+        self.position = Backlog.joins(:issue)
+                          .where('issues.fixed_version' => issue.fixed_version)
+                          .maximum(:position).to_i + (new_record? ? 1 : 0)
+      end
     end
   end
 
@@ -33,27 +39,26 @@ class Backlog < ActiveRecord::Base
   end
 
   def update_agile
-    i = 0
-    Backlog.sorted_by_status(fixed_version, status).each do |backlog|
+    Backlog.sorted_by_status(issue.fixed_version, issue.status)
+           .each_with_index do |backlog, i|
       if backlog.agile_data
         backlog.agile_data.update(:position => i)
       else
         AgileData.create(:issue => backlog.issue, :position => i)
       end
-      i += 1
     end
   end
 
   def insert_position
     Backlog.joins(:issue)
-           .where('issues.fixed_version' => self.fixed_version)
+           .where('issues.fixed_version' => issue.fixed_version)
            .where('backlogs.position >= ? AND backlogs.id <> ?', position, id)
            .update_all('position = position + 1')
   end
 
   def remove_position
     Backlog.joins(:issue)
-           .where('issues.fixed_version' => self.fixed_version)
+           .where('issues.fixed_version' => issue.fixed_version)
            .where('backlogs.position >= ? AND backlogs.id <> ?', position_was, id)
            .update_all('position = position - 1')
   end
@@ -73,11 +78,10 @@ class Backlog < ActiveRecord::Base
   end
 
   def self.reset_positions(current_version)
-    i = 0
     Backlog.joins(:issue)
            .where('issues.fixed_version' => current_version)
            .order(:position)
-           .each { |b| b.update_attribute :position, (i += 1) }
+           .each_with_index { |b, i| b.update_attribute :position, i }
   end
 
   def self.sorted_by_status(version, status)
