@@ -37,7 +37,8 @@ class BacklogsController < ApplicationController
     sort_init(@query.sort_criteria.empty? ? [['position', 'id', 'desc']] : @query.sort_criteria)
     sort_update(@query.sortable_columns)
     @query.sort_criteria = sort_criteria.to_a
-    @query.add_filter('fixed_version_id', '!', [@current_version.id])
+    # if not set filter for Target version, exlude current version
+    @query.add_filter('fixed_version_id', '!', [@current_version.id]) if @query.filters['fixed_version_id'].nil?
 
     if @query.valid?
       @limit = per_page_option
