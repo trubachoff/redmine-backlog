@@ -10,7 +10,7 @@
       <% query.inline_columns.each do |column| %>
       <%= content_tag('th', h(column.caption)) %>
       <% end %>
-      <%= '<th></th>'.html_safe if User.current.allowed_to_globally? :update_backlog %>
+      <%= '<th width="0"></th>'.html_safe if User.current.allowed_to_globally? :update_backlog %>
     </tr></thead>
     <tbody>
     <% for backlog in @backlogs %>
@@ -20,7 +20,7 @@
       <td class="<%= column.css_classes %>"><%= column_content(column, backlog) %></td>
     <% end %>
     <% if User.current.allowed_to_globally? :update_backlog %>
-      <td class="buttons">
+      <td class="buttons" width="0">
       <%= reorder_handle(backlog, :url => backlog_path(backlog), :param => 'backlog') %>
       </td>
     <% end %>
