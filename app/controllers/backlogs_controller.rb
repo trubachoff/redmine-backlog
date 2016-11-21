@@ -17,6 +17,7 @@ class BacklogsController < ApplicationController
   helper :application
   helper :journals
   helper :backlogs
+  include RedmineAgile::AgileHelper
   include BacklogsHelper
 
   rescue_from Query::StatementInvalid, :with => :query_statement_invalid

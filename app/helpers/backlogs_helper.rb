@@ -12,29 +12,6 @@ module BacklogsHelper
       :class => 'queries-buttons btn-group') + "\n"
   end
 
-  def render_versions_buttons
-    url_params = params
-    content_tag('div',
-      Version.visible
-             .where(:sharing => 'system')
-             .where.not(:status => 'closed')
-             .collect {|version|
-               css = 'btn btn-default'
-               css << ' active' if version == @current_version
-               link_to(version.name, url_params.merge(:version_id => version), :class => css)
-             }.join("\n").html_safe,
-      :class => 'queries-buttons btn-group') + "\n"
-  end
-
-  def find_version
-    @current_version = Version.visible
-                              .where(sharing: 'system')
-                              .where.not(status: 'closed')
-                              .find_by(id: params[:version_id]) ||
-                       Version.find_by(id: Setting.plugin_redmine_backlog['default_version']) ||
-                       Version.visible.where.not(status: 'closed').first
-  end
-
   def render_backlog_query_totals(query)
     return unless query.totalable_columns.present?
     totals = query.totalable_columns.map do |column|

@@ -29,7 +29,7 @@ module RedmineAgile
                             .joins(:issue)
                             .where('issues.fixed_version' => issue.fixed_version)
                             .pluck(:issue_id).index(issue_id)
-          position += 1 if is_down
+          position += 1 if position && is_down
 
           if position && issue.backlog.position
             position += -1 if position > issue.backlog.position # if move down in backlog
