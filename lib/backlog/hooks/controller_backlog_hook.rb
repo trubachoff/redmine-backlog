@@ -50,7 +50,9 @@ module RedmineAgile
 
       def update_backlog(issue)
         if issue.fixed_version_id_changed?
-          backlog.destroy if backlog = Backlog.find_by(issue_id: issue.id)
+          if backlog = Backlog.find_by(issue_id: issue.id)
+            backlog.destroy
+          end
           Backlog.create(:issue => issue) if issue.fixed_version_id.in?(Version.visible
                                                                                .where(sharing: 'system')
                                                                                .where.not(status: 'closed')

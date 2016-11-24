@@ -23,8 +23,8 @@ class Backlog < ActiveRecord::Base
         self.position = 0
       else
         self.position = Backlog.joins(:issue)
-                          .where('issues.fixed_version' => issue.fixed_version)
-                          .maximum(:position).to_i + (new_record? ? 1 : 0)
+                               .where('issues.fixed_version' => issue.fixed_version)
+                               .maximum(:position).to_i + (new_record? ? 1 : 0)
       end
     end
   end
