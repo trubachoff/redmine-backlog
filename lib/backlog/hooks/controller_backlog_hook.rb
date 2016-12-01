@@ -49,7 +49,7 @@ module RedmineAgile
       private
 
       def update_backlog(issue)
-        if issue.fixed_version_id_changed?
+        if issue.fixed_version_id_changed? || issue.status_id_changed?
           if backlog = Backlog.find_by(issue_id: issue.id)
             backlog.destroy
           end
